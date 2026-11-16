@@ -1,0 +1,14 @@
+- insert:
+    - id: living-dock
+      name: dsh-living-dock
+      config:
+        enabled: true
+        tools: true
+        port: 48960
+        beaconPort: 48961
+        findPort: 48962
+        pairCode: ''
+        chatSessions:
+          - '^onebot-private-'
+        ignoreSessions:
+          - '^onebot-group-'

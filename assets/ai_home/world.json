@@ -1,0 +1,812 @@
+{
+ "version": 1,
+ "kind": "ai",
+ "tile": 16,
+ "size": [
+  32,
+  42
+ ],
+ "res": 3.0,
+ "filter": "linear",
+ "ground": "ground.png",
+ "water": [
+  332,
+  200,
+  150,
+  75
+ ],
+ "trees": [
+  [
+   97,
+   50
+  ],
+  [
+   20,
+   30
+  ],
+  [
+   480,
+   40
+  ],
+  [
+   20,
+   290
+  ],
+  [
+   490,
+   290
+  ]
+ ],
+ "flower_homes": [
+  [
+   50,
+   220
+  ],
+  [
+   110,
+   250
+  ],
+  [
+   450,
+   180
+  ],
+  [
+   405,
+   130
+  ]
+ ],
+ "firefly_area": [
+  100,
+  160,
+  320,
+  120
+ ],
+ "companion": {
+  "texture": "companion.png",
+  "frame": 32,
+  "speed": 1.5,
+  "res": 4,
+  "walk": 8,
+  "idle": 8,
+  "poses": {
+   "sit": 20,
+   "fish": 21,
+   "crouch": 22,
+   "water": 23,
+   "doze": 24,
+   "phone": 25,
+   "laptop": 26,
+   "eat": 27,
+   "sleep": 28
+  },
+  "anchors": {
+   "fish": [
+    -10.06,
+    -17.05
+   ],
+   "water": [
+    -8.99,
+    -10.79
+   ]
+  },
+  "outfits": {
+   "winter": {
+    "texture": "companion_winter.png",
+    "walk": 8,
+    "idle": 8,
+    "poses": {
+     "sit": 20,
+     "fish": 21,
+     "crouch": 22,
+     "water": 23,
+     "doze": 24,
+     "phone": 25,
+     "laptop": 26,
+     "eat": 27
+    },
+    "anchors": {
+     "fish": [
+      -10.07,
+      -17.04
+     ],
+     "water": [
+      -9.0,
+      -10.83
+     ]
+    }
+   },
+   "summer": {
+    "texture": "companion_summer.png",
+    "walk": 8,
+    "idle": 8,
+    "poses": {
+     "sit": 20,
+     "fish": 21,
+     "crouch": 22,
+     "water": 23,
+     "doze": 24,
+     "phone": 25,
+     "laptop": 26,
+     "eat": 27
+    },
+    "anchors": {
+     "fish": [
+      -9.93,
+      -16.87
+     ],
+     "water": [
+      -8.88,
+      -10.44
+     ]
+    }
+   },
+   "rain": {
+    "texture": "companion_rain.png",
+    "walk": 8,
+    "idle": 8,
+    "poses": {
+     "sit": 20,
+     "fish": 21,
+     "crouch": 22,
+     "water": 23,
+     "doze": 24,
+     "phone": 25,
+     "laptop": 26,
+     "eat": 27
+    },
+    "anchors": {
+     "fish": [
+      -10.36,
+      -17.65
+     ],
+     "water": [
+      -9.26,
+      -11.1
+     ]
+    }
+   }
+  }
+ },
+ "blocked": [
+  "################################",
+  "################################",
+  "################################",
+  "################################",
+  "################################",
+  "################################",
+  "################.###############",
+  "################.###############",
+  "################.###############",
+  "####..#...#.............##..####",
+  "####.......................#####",
+  "#####...................##.#####",
+  "#####................###########",
+  "#####...............############",
+  "########............############",
+  "##########..##....##############",
+  "################################",
+  "################################",
+  "################################",
+  "################################",
+  "################################",
+  "################################",
+  "################################",
+  "################################",
+  "################################",
+  "#######..#######################",
+  "#######..########.........######",
+  "#######.................########",
+  "####............##....##########",
+  "####..############....##########",
+  "##################....##########",
+  "#######.......####....##########",
+  "#######..########............###",
+  "###.###..########....######..###",
+  "###.###..########....######...##",
+  "###.###.......###....######.####",
+  "###..................######.####",
+  "###.........##....##........####",
+  "################################",
+  "################################",
+  "################################",
+  "################################"
+ ],
+ "spots": {
+  "front": {
+   "cell": [
+    16,
+    10
+   ],
+   "face": "down",
+   "anim": "stand",
+   "label": "门前",
+   "do": "在门前站站"
+  },
+  "swing": {
+   "cell": [
+    8,
+    8
+   ],
+   "via": [
+    8,
+    9
+   ],
+   "face": "down",
+   "pose": "sit",
+   "anim": "sit",
+   "offset": [
+    6,
+    -8
+   ],
+   "label": "院子：荡秋千"
+  },
+  "bench": {
+   "cell": [
+    26,
+    8
+   ],
+   "via": [
+    26,
+    9
+   ],
+   "face": "down",
+   "pose": "sit",
+   "anim": "sit",
+   "offset": [
+    6,
+    -4
+   ],
+   "label": "花架：坐长椅"
+  },
+  "fish": {
+   "cell": [
+    19,
+    14
+   ],
+   "face": "right",
+   "anim": "fish",
+   "label": "池塘：钓鱼"
+  },
+  "flowers": {
+   "cell": [
+    8,
+    14
+   ],
+   "face": "left",
+   "anim": "water",
+   "offset": [
+    -10,
+    5
+   ],
+   "label": "粉花丛：浇花"
+  },
+  "flowers_left": {
+   "cell": [
+    5,
+    13
+   ],
+   "face": "left",
+   "anim": "crouch",
+   "label": "花丛：看花"
+  },
+  "gate": {
+   "cell": [
+    15,
+    15
+   ],
+   "face": "down",
+   "anim": "stand",
+   "label": "院门"
+  },
+  "sleep": {
+   "cell": [
+    4,
+    27
+   ],
+   "via": [
+    4,
+    28
+   ],
+   "face": "down",
+   "anim": "sleep",
+   "pose": "lie",
+   "offset": [
+    -4,
+    -40
+   ],
+   "label": "卧室：睡觉",
+   "scene": {
+    "texture": "scene_sleep.png",
+    "x": 5.0,
+    "y": 367.0
+   }
+  },
+  "sofa": {
+   "cell": [
+    11,
+    31
+   ],
+   "face": "down",
+   "pose": "sit",
+   "anim": "sit",
+   "offset": [
+    0,
+    -4
+   ],
+   "label": "客厅：坐沙发",
+   "scene": {
+    "texture": "scene_sofa.png",
+    "x": 112.33,
+    "y": 447.67
+   }
+  },
+  "armchair": {
+   "cell": [
+    16,
+    33
+   ],
+   "via": [
+    17,
+    33
+   ],
+   "face": "down",
+   "pose": "sit",
+   "anim": "sit",
+   "offset": [
+    -9,
+    -1
+   ],
+   "label": "客厅：单人沙发",
+   "do": "坐单人沙发",
+   "scene": {
+    "texture": "scene_armchair.png",
+    "x": 204.33,
+    "y": 512.67
+   }
+  },
+  "dining": {
+   "cell": [
+    22,
+    36
+   ],
+   "via": [
+    22,
+    37
+   ],
+   "face": "right",
+   "pose": "sit",
+   "anim": "eat",
+   "offset": [
+    0,
+    -2
+   ],
+   "label": "餐厅：吃饭",
+   "scene": {
+    "texture": "scene_dining.png",
+    "x": 320.0,
+    "y": 525.33
+   }
+  },
+  "souvenirs": {
+   "cell": [
+    20,
+    26
+   ],
+   "face": "up",
+   "anim": "stand",
+   "label": "纪念品柜",
+   "do": "看纪念品"
+  },
+  "postcards": {
+   "cell": [
+    25,
+    26
+   ],
+   "face": "up",
+   "anim": "stand",
+   "label": "明信片墙",
+   "do": "看明信片"
+  },
+  "cook": {
+   "cell": [
+    25,
+    32
+   ],
+   "face": "up",
+   "anim": "cook",
+   "label": "厨房：做饭"
+  },
+  "books": {
+   "cell": [
+    4,
+    29
+   ],
+   "face": "left",
+   "anim": "stand",
+   "label": "书架",
+   "do": "看书"
+  },
+  "dress": {
+   "cell": [
+    8,
+    26
+   ],
+   "face": "up",
+   "anim": "dress",
+   "label": "衣柜",
+   "do": "换衣服"
+  },
+  "door_in": {
+   "cell": [
+    16,
+    37
+   ],
+   "face": "down",
+   "anim": "stand",
+   "label": "门口（屋里）"
+  }
+ },
+ "lights": [
+  {
+   "name": "win_left",
+   "x": 202,
+   "y": 83,
+   "radius": 20,
+   "texture": "glow_warm.png",
+   "when": "evening",
+   "under_roof": false
+  },
+  {
+   "name": "win_top",
+   "x": 262,
+   "y": 40,
+   "radius": 16,
+   "texture": "glow_warm.png",
+   "when": "evening",
+   "under_roof": false
+  },
+  {
+   "name": "win_right",
+   "x": 338,
+   "y": 83,
+   "radius": 20,
+   "texture": "glow_warm.png",
+   "when": "evening",
+   "under_roof": false
+  },
+  {
+   "name": "lantern_a",
+   "x": 238,
+   "y": 77,
+   "radius": 26,
+   "texture": "glow_warm.png",
+   "when": "outdoor",
+   "under_roof": false
+  },
+  {
+   "name": "lantern_b",
+   "x": 291,
+   "y": 75,
+   "radius": 26,
+   "texture": "glow_warm.png",
+   "when": "outdoor",
+   "under_roof": false
+  },
+  {
+   "name": "gate_a",
+   "x": 210,
+   "y": 260,
+   "radius": 40,
+   "texture": "glow_warm.png",
+   "when": "outdoor",
+   "under_roof": false
+  },
+  {
+   "name": "gate_b",
+   "x": 302,
+   "y": 260,
+   "radius": 40,
+   "texture": "glow_warm.png",
+   "when": "outdoor",
+   "under_roof": false
+  },
+  {
+   "name": "lamp_bed",
+   "x": 23,
+   "y": 401,
+   "radius": 30,
+   "texture": "glow_warm.png",
+   "when": "evening",
+   "under_roof": false
+  },
+  {
+   "name": "lamp_sofa",
+   "x": 245,
+   "y": 466,
+   "radius": 34,
+   "texture": "glow_warm.png",
+   "when": "evening",
+   "under_roof": false
+  },
+  {
+   "name": "lamp_desk",
+   "x": 470,
+   "y": 386,
+   "radius": 30,
+   "texture": "glow_warm.png",
+   "when": "evening",
+   "under_roof": false
+  },
+  {
+   "name": "lamp_corner",
+   "x": 483,
+   "y": 571,
+   "radius": 30,
+   "texture": "glow_warm.png",
+   "when": "evening",
+   "under_roof": false
+  }
+ ],
+ "start": [
+  16,
+  11
+ ],
+ "sources": {
+  "yard": "手绘风户外.png",
+  "dafeiyu": "三视图手绘风.png",
+  "house": "手绘风小屋.png"
+ },
+ "outdoor": [
+  0,
+  0,
+  512,
+  336
+ ],
+ "props": [],
+ "state_spots": {
+  "working": "armchair",
+  "thinking": "armchair",
+  "error": "armchair",
+  "waiting": "front",
+  "chatting": "sofa"
+ },
+ "idle_life": [
+  [
+   "swing",
+   3
+  ],
+  [
+   "fish",
+   3
+  ],
+  [
+   "flowers",
+   2
+  ],
+  [
+   "flowers_left",
+   2
+  ],
+  [
+   "bench",
+   2
+  ],
+  [
+   "gate",
+   1
+  ],
+  [
+   "sofa",
+   3
+  ],
+  [
+   "books",
+   2
+  ],
+  [
+   "souvenirs",
+   2
+  ],
+  [
+   "postcards",
+   2
+  ],
+  [
+   "cook",
+   1
+  ],
+  [
+   "dress",
+   1
+  ]
+ ],
+ "idle_rain": [
+  [
+   "sofa",
+   3
+  ],
+  [
+   "books",
+   2
+  ],
+  [
+   "souvenirs",
+   2
+  ],
+  [
+   "postcards",
+   2
+  ],
+  [
+   "cook",
+   1
+  ]
+ ],
+ "idle_snow": [
+  [
+   "sofa",
+   3
+  ],
+  [
+   "books",
+   2
+  ],
+  [
+   "souvenirs",
+   1
+  ],
+  [
+   "front",
+   1
+  ]
+ ],
+ "calm_life": [
+  [
+   "sofa",
+   3
+  ],
+  [
+   "front",
+   1
+  ]
+ ],
+ "areas": {
+  "yard": [
+   0,
+   0,
+   512,
+   336
+  ],
+  "house": [
+   0,
+   336,
+   512,
+   336
+  ]
+ },
+ "indoor": [
+  0,
+  336,
+  512,
+  336
+ ],
+ "portals": [
+  [
+   [
+    16,
+    6
+   ],
+   [
+    16,
+    37
+   ]
+  ]
+ ],
+ "keepsakes": {
+  "wall_rect": [
+   393,
+   346,
+   97,
+   38
+  ],
+  "wall_slots": [
+   [
+    405,
+    357
+   ],
+   [
+    428,
+    357
+   ],
+   [
+    451,
+    357
+   ],
+   [
+    474,
+    357
+   ],
+   [
+    405,
+    374
+   ],
+   [
+    428,
+    374
+   ],
+   [
+    451,
+    374
+   ],
+   [
+    474,
+    374
+   ]
+  ],
+  "card_size": [
+   20,
+   14
+  ],
+  "shelf_rect": [
+   278,
+   353,
+   105,
+   70
+  ],
+  "shelf_slots": [
+   [
+    300,
+    386
+   ],
+   [
+    330,
+    386
+   ],
+   [
+    360,
+    386
+   ],
+   [
+    300,
+    404
+   ],
+   [
+    330,
+    404
+   ],
+   [
+    360,
+    404
+   ]
+  ],
+  "souvenir_h": 12,
+  "table_rect": [
+   143,
+   518,
+   67,
+   37
+  ],
+  "table_at": [
+   177,
+   536
+  ],
+  "magazine_w": 20
+ },
+ "routine": [
+  [
+   7.5,
+   8.2,
+   "dining"
+  ],
+  [
+   12.0,
+   12.8,
+   "dining"
+  ],
+  [
+   18.5,
+   19.3,
+   "dining"
+  ]
+ ]
+}

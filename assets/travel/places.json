@@ -1,0 +1,67 @@
+{
+ "hangzhou": {
+  "name": "杭州·西湖",
+  "en": "West Lake · Hangzhou",
+  "short": "杭州",
+  "souvenir": "西湖龙井",
+  "postcard": "hangzhou_postcard.png",
+  "photos": [
+   "hangzhou_photo_1.png",
+   "hangzhou_photo_2.png"
+  ],
+  "souvenir_tex": "hangzhou_souvenir.png",
+  "magazine_tex": "hangzhou_magazine.png"
+ },
+ "suzhou": {
+  "name": "苏州·园林",
+  "en": "Classical Gardens · Suzhou",
+  "short": "苏州",
+  "souvenir": "苏州丝绸团扇",
+  "postcard": "suzhou_postcard.png",
+  "photos": [
+   "suzhou_photo_1.png",
+   "suzhou_photo_2.png"
+  ],
+  "souvenir_tex": "suzhou_souvenir.png",
+  "magazine_tex": "suzhou_magazine.png"
+ },
+ "huangshan": {
+  "name": "黄山",
+  "en": "Mount Huangshan",
+  "short": "黄山",
+  "souvenir": "迎客松小盆景",
+  "postcard": "huangshan_postcard.png",
+  "photos": [
+   "huangshan_photo_1.png",
+   "huangshan_photo_2.png"
+  ],
+  "souvenir_tex": "huangshan_souvenir.png",
+  "magazine_tex": "huangshan_magazine.png"
+ },
+ "xiamen": {
+  "name": "厦门·鼓浪屿",
+  "en": "Gulangyu · Xiamen",
+  "short": "厦门",
+  "souvenir": "钢琴音乐盒",
+  "postcard": "xiamen_postcard.png",
+  "photos": [
+   "xiamen_photo_1.png",
+   "xiamen_photo_2.png"
+  ],
+  "souvenir_tex": "xiamen_souvenir.png",
+  "magazine_tex": "xiamen_magazine.png"
+ },
+ "xuexiang": {
+  "name": "中国雪乡",
+  "en": "Snow Town · Heilongjiang",
+  "short": "雪乡",
+  "souvenir": "雪屋小摆件",
+  "postcard": "xuexiang_postcard.png",
+  "photos": [
+   "xuexiang_photo_1.png",
+   "xuexiang_photo_2.png"
+  ],
+  "souvenir_tex": "xuexiang_souvenir.png",
+  "magazine_tex": "xuexiang_magazine.png"
+ }
+}

@@ -1,0 +1,47 @@
+{
+ "hangzhou": {
+  "name": "杭州·西湖",
+  "short": "杭州",
+  "souvenir": "西湖龙井",
+  "photos": [
+   "hangzhou_photo_1.png",
+   "hangzhou_photo_2.png"
+  ]
+ },
+ "suzhou": {
+  "name": "苏州·园林",
+  "short": "苏州",
+  "souvenir": "苏州丝绸团扇",
+  "photos": [
+   "suzhou_photo_1.png",
+   "suzhou_photo_2.png"
+  ]
+ },
+ "huangshan": {
+  "name": "黄山",
+  "short": "黄山",
+  "souvenir": "迎客松小盆景",
+  "photos": [
+   "huangshan_photo_1.png",
+   "huangshan_photo_2.png"
+  ]
+ },
+ "xiamen": {
+  "name": "厦门·鼓浪屿",
+  "short": "厦门",
+  "souvenir": "钢琴音乐盒",
+  "photos": [
+   "xiamen_photo_1.png",
+   "xiamen_photo_2.png"
+  ]
+ },
+ "xuexiang": {
+  "name": "中国雪乡",
+  "short": "雪乡",
+  "souvenir": "雪屋小摆件",
+  "photos": [
+   "xuexiang_photo_1.png",
+   "xuexiang_photo_2.png"
+  ]
+ }
+}
