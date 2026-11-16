@@ -21,7 +21,11 @@ Settings="*res://scripts/settings.gd"
 window/size/viewport_width=1280
 window/size/viewport_height=800
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
+window/stretch/aspect="expand"
+
+[gui]
+
+theme/custom_font.web="res://assets/fonts/NotoSansSC-Regular.otf"
 
 [rendering]
 

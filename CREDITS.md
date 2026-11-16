@@ -9,3 +9,4 @@
 | 雨、风、虫鸣、鸟叫、水声 | `assets/sounds/` | `tools/p1_sounds.py` 程序合成，没有用录音素材 | CC BY-NC-SA 4.0 |
 | 雨、雪、萤火虫、蝴蝶、落叶等小动静 | — | 程序绘制 | — |
 | Godot Engine | — | https://godotengine.org/ | MIT（`release/Godot许可.txt`） |
+| 网页版的中文字体 Noto Sans SC Regular 2.004 | `assets/fonts/` | © 2014-2021 Adobe，https://github.com/notofonts/noto-cjk | SIL OFL 1.1（`assets/fonts/OFL.txt`） |

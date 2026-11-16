@@ -34,6 +34,8 @@ func _init() -> void:
 	box.position = Vector2(240, 12)
 	box.custom_minimum_size = Vector2(800, 0)
 	add_child(box)
+	# in the middle of a window of any shape (laid out for 1280 x 800)
+	resized.connect(func(): box.position = ((size - Vector2(1280, 800)) / 2.0).floor() + Vector2(240, 12))
 
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 8)

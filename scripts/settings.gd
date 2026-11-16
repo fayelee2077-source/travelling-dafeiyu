@@ -6,6 +6,9 @@ extends Node
 const FILE := "user://settings.cfg"
 const ARGS_FILE := "user://launch_args.txt"
 const LOG_FILE := "user://log.txt"
+# browsers have no system fonts to fall back on, so the web version brings its own Chinese font
+# (the Windows build leaves it out and uses the system's, as before)
+const CJK_FONT := "res://assets/fonts/NotoSansSC-Regular.otf"
 
 var pair_code := ""
 var host_ip := ""
@@ -55,6 +58,7 @@ var test_magazine := ""         # tests: a travel magazine on the coffee table (
 var inside := ""                # tests: "on" / "off" = she is / is not in the little home (not saved)
 var notes_dir := ""             # tests: another coffee-table notes folder ("" = 文档\旅行的大肥鱼\茶几纸条)
 var hover_at := Vector2(-1, -1) # tests: act as if the mouse were on this world point (screenshots of the labels)
+var bundled_font := false       # tests: use the web version's own Chinese font on the desktop too
 
 var _start_hour := 0.0
 var _start_ms := 0
@@ -138,6 +142,7 @@ func _init() -> void:
 			"magazine": test_magazine = val
 			"inside": inside = val
 			"notes-dir": notes_dir = val
+			"bundled-font": bundled_font = true
 			"hover":
 				var hxy := val.split(",")
 				if hxy.size() == 2:
@@ -169,6 +174,8 @@ func _init() -> void:
 		weather_mode = "season"
 	if sound != "off":
 		sound = "on"
+	if (OS.has_feature("web") or bundled_font) and ResourceLoader.exists(CJK_FONT):
+		ThemeDB.fallback_font = load(CJK_FONT)      # what our own drawing uses (postcards); controls: project.godot
 
 	_start_ms = Time.get_ticks_msec()
 	if fixed_hour >= 0.0:

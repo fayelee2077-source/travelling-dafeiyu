@@ -7,7 +7,7 @@
 const WEATHER = { clear: '晴', cloudy: '多云', rain: '下雨', snow: '下雪' }
 const SEASON = { spring: '春天', summer: '夏天', autumn: '秋天', winter: '冬天' }
 // other names she may use for a place (the places' own names and short names always work)
-const ALIASES = { 西湖: 'hangzhou', 杭州西湖: 'hangzhou', 鼓浪屿: 'xiamen', 厦门鼓浪屿: 'xiamen', 中国雪乡: 'xuexiang', 东北雪乡: 'xuexiang', 雪乡: 'xuexiang' }
+const ALIASES = { 西湖: 'hangzhou', 杭州西湖: 'hangzhou', 鼓浪屿: 'xiamen', 厦门鼓浪屿: 'xiamen', 中国雪乡: 'xuexiang', 东北雪乡: 'xuexiang', 雪乡: 'xuexiang', 外滩: 'shanghai', 上海外滩: 'shanghai', 东方明珠: 'shanghai', 东方明珠塔: 'shanghai' }
 const CLOSED = '《旅行的大肥鱼》的小家现在没打开，看不到也去不了小家。'
 
 const TEXT_OUT = {

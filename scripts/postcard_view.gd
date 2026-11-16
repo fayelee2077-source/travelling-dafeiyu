@@ -56,16 +56,17 @@ func _draw() -> void:
 	var mid := size.x * 0.58
 	draw_line(Vector2(mid, 30), Vector2(mid, size.y - 30), Color(INK, 0.35), 2.0)
 	var words: String = trip.get("message", "")
+	# Chinese has no spaces: break between characters too (adaptive), not only at spaces; long words get smaller
+	var brk := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
 	if words != "":
-		# Chinese has no spaces: break between characters too (adaptive), not only at spaces; long words get smaller
-		var brk := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
 		var fs := 24
 		while fs > 14 and font.get_multiline_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, mid - 64, fs, -1, brk).y \
 				> size.y - 130:
 			fs -= 2
 		draw_multiline_string(font, Vector2(34, 46 + fs), words, HORIZONTAL_ALIGNMENT_LEFT, mid - 64, fs, -1, INK, brk)
 	else:
-		draw_string(font, Vector2(34, 70), "（她没有写字，只寄来了风景）", HORIZONTAL_ALIGNMENT_LEFT, mid - 64, 18, Color(INK, 0.55))
+		draw_multiline_string(font, Vector2(34, 70), "（她没有写字，只寄来了风景）", HORIZONTAL_ALIGNMENT_LEFT, mid - 64, 16, -1,
+			Color(INK, 0.55), brk)
 	draw_string(font, Vector2(34, size.y - 34), Travel.day_text(float(trip.get("postcard_at", 0))) + " · " + str(place.get("short", "")),
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(INK, 0.8))
 	for i in 3:

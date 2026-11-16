@@ -1,7 +1,7 @@
 ﻿# 打《旅行的大肥鱼》Windows 发布包：build\旅行的大肥鱼_v<版本>\ 和同名 .zip（build\ 不进 git）。
 #   powershell -ExecutionPolicy Bypass -File tools\make_release.ps1 -Version 0.1
 # 包里：旅行的大肥鱼.exe（导出设置 dafeiyu-windows，只带免费版要的图）、DSH插件\（插件 + 小家网页版 web\ + 一键安装 / 卸载）、
-# 说明.txt、许可和署名.txt、Godot许可.txt（release\ 里的原文，{VERSION} 换成版本号）。
+# 说明.txt、许可和署名.txt、Godot许可.txt、字体许可.txt（release\ 里的原文，{VERSION} 换成版本号）。
 param([Parameter(Mandatory = $true)][string]$Version)
 $ErrorActionPreference = "Stop"
 $Root = Split-Path $PSScriptRoot -Parent
@@ -47,7 +47,7 @@ try { godot_console --headless --path . --export-release "dafeiyu-web" "build/da
 if (-not (Test-Path -LiteralPath (Join-Path $WebOut "index.html"))) { throw "网页版导出失败" }
 Copy-Item -LiteralPath $WebOut -Destination (Join-Path $Out "DSH插件\web") -Recurse
 
-foreach ($f in @("说明.txt", "许可和署名.txt", "Godot许可.txt")) {
+foreach ($f in @("说明.txt", "许可和署名.txt", "Godot许可.txt", "字体许可.txt")) {
     $text = [System.IO.File]::ReadAllText((Join-Path $Root "release\$f")).Replace("{VERSION}", $Version) -replace "(?<!\r)\n", "`r`n"
     [System.IO.File]::WriteAllText((Join-Path $Out $f), $text, $Utf8Bom)
 }

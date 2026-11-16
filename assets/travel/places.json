@@ -63,5 +63,18 @@
   ],
   "souvenir_tex": "xuexiang_souvenir.png",
   "magazine_tex": "xuexiang_magazine.png"
+ },
+ "shanghai": {
+  "name": "上海·外滩",
+  "en": "The Bund · Shanghai",
+  "short": "上海",
+  "souvenir": "东方明珠水晶球",
+  "postcard": "shanghai_postcard.png",
+  "photos": [
+   "shanghai_photo_1.png",
+   "shanghai_photo_2.png"
+  ],
+  "souvenir_tex": "shanghai_souvenir.png",
+  "magazine_tex": "shanghai_magazine.png"
  }
 }

@@ -17,19 +17,21 @@ var _prev := Button.new()
 var _next := Button.new()
 var _empty := Label.new()
 var _tex_cache := {}
+var _dim := ColorRect.new()
 
 
 func _ready() -> void:
 	size = Vector2(1280, 800)
-	var dim := ColorRect.new()
-	dim.color = Color(0.12, 0.1, 0.14, 0.82)
-	dim.size = size
-	add_child(dim)
+	_dim.color = Color(0.12, 0.1, 0.14, 0.82)
+	_dim.size = size
+	add_child(_dim)
 	var page := ColorRect.new()
 	page.color = Color(0.93, 0.89, 0.8)
 	page.position = Vector2(60, 50)
 	page.size = Vector2(1160, 700)
 	add_child(page)
+
+	fit(get_viewport().get_visible_rect().size)
 
 	_title.position = Vector2(100, 70)
 	_label_style(_title, 36)
@@ -93,6 +95,13 @@ func _ready() -> void:
 	close.position = Vector2(1120, 66)
 	close.pressed.connect(func(): visible = false)
 	add_child(close)
+
+
+## The page stays 1280 x 800 in the middle of the window; the dimming covers all of it.
+func fit(vis: Vector2) -> void:
+	position = ((vis - size) / 2.0).floor()
+	_dim.position = -position
+	_dim.size = vis
 
 
 func _label_style(l: Label, s: int) -> void:

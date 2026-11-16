@@ -43,5 +43,14 @@
    "xuexiang_photo_1.png",
    "xuexiang_photo_2.png"
   ]
+ },
+ "shanghai": {
+  "name": "上海·外滩",
+  "short": "上海",
+  "souvenir": "东方明珠水晶球",
+  "photos": [
+   "shanghai_photo_1.png",
+   "shanghai_photo_2.png"
+  ]
  }
 }

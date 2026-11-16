@@ -5,6 +5,9 @@ extends Node2D
 const LONG_PRESS := 1.5
 const DOUBLE_TAP := 0.35
 const ZOOM_SPEED := 3.0
+# the screen is laid out for this; a window of another shape gets more room on one side (the map fills it,
+# cropped, and follows her), the album and panels stay in the middle
+const BASE := Vector2(1280, 800)
 # states that pull the camera in close to the companion
 const CLOSE_UP_STATES := ["chatting", "waiting"]
 
@@ -115,6 +118,8 @@ func _ready() -> void:
 	link.message.connect(_on_message)
 
 	_build_ui()
+	get_viewport().size_changed.connect(_layout)
+	_layout()
 	add_child(_photo)
 
 	if Settings.force_state != "":
@@ -136,7 +141,6 @@ func _build_ui() -> void:
 			if d <= 6.5:
 				img.set_pixel(x, y, Color(1, 1, 1, clampf(6.5 - d, 0.0, 1.0)))
 	_dot.texture = ImageTexture.create_from_image(img)
-	_dot.position = Vector2(1280 - 26, 800 - 26)
 	_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dot.visible = not Settings.clean
 	_ui.add_child(_dot)
@@ -148,7 +152,6 @@ func _build_ui() -> void:
 		l.add_theme_constant_override("outline_size", 6)
 		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_ui.add_child(l)
-	_toast.position = Vector2(20, 760)
 	_toast.visible = false
 	_hover.add_theme_font_size_override("font_size", 20)
 	_hover.add_theme_color_override("font_color", Color8(80, 62, 52))
@@ -170,7 +173,6 @@ func _build_ui() -> void:
 	_marker.visible = false
 	_ui.add_child(_marker)
 	_fade.color = Color.BLACK
-	_fade.size = Vector2(1280, 800)
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_fade.modulate.a = 0.0
 	_ui.add_child(_fade)
@@ -192,6 +194,21 @@ func _build_ui() -> void:
 	_panel.visible = false
 	_panel.saved.connect(_on_settings_saved)
 	_ui.add_child(_panel)
+
+
+func _view() -> Vector2:
+	return get_viewport().get_visible_rect().size
+
+
+## Window size changed (or first frame): things at the edges go to the edges, the rest stays in the middle.
+func _layout() -> void:
+	var vis := _view()
+	var mid := ((vis - BASE) / 2.0).floor()
+	_dot.position = vis - Vector2(26, 26)
+	_toast.position = Vector2(20, vis.y - 40)
+	_fade.size = vis
+	_magazines.position = Vector2(520, 220) + mid
+	_album.fit(vis)
 
 
 func _update_album_btn() -> void:
@@ -228,7 +245,6 @@ func _build_magazines() -> void:
 				travel.set_magazine("")
 			_magazines.visible = false)
 		box.add_child(b)
-	_magazines.position = Vector2(520, 220)
 	_magazines.visible = false
 	_ui.add_child(_magazines)
 
@@ -344,8 +360,9 @@ func _reply_photo(msg: Dictionary) -> void:
 		if shot == null or shot.is_empty() or shot.get_width() < 64:
 			why = "minimized"
 		else:
-			if shot.get_width() > 1280:
-				shot.resize(1280, roundi(shot.get_height() * 1280.0 / shot.get_width()), Image.INTERPOLATE_LANCZOS)
+			var k := 1280.0 / maxi(shot.get_width(), shot.get_height())     # a tall window gives a tall shot
+			if k < 1.0:
+				shot.resize(roundi(shot.get_width() * k), roundi(shot.get_height() * k), Image.INTERPOLATE_LANCZOS)
 			image = Marshalls.raw_to_base64(shot.save_jpg_to_buffer(0.85))
 	var reply := {"t": "reply", "id": msg.get("id"), "ok": why == "", "why": why, "image": image, "mime": "image/jpeg",
 		"kind": kind, "facts": _facts()}
@@ -649,7 +666,7 @@ func _process(delta: float) -> void:
 			camera.position = Settings.camera_at
 		else:
 			# far view looks at the whole map; close up follows the companion (indoors: frames its room)
-			camera.position = world.area_rect(companion.position).get_center().lerp(_near_point(), near_t)
+			camera.position = _far_point().lerp(_near_point(), near_t)
 		_update_marker(1.0 - near_t)
 
 	match link.status:
@@ -711,19 +728,30 @@ func _process(delta: float) -> void:
 		get_tree().quit()
 
 
-## Zoom that shows the whole map the companion is on.
+## Zoom where the map the companion is on fills the window (all of it in a 1280 x 800 window; in a window
+## of another shape the map is cropped and the camera follows her).
 func _far_zoom() -> float:
 	var s := world.area_rect(companion.position).size
-	return maxf(1280.0 / s.x, 800.0 / s.y)
+	var v := _view()
+	return maxf(v.x / s.x, v.y / s.y)
+
+
+## The whole-map view looks at her (the camera limits keep it on the map; when the map just fits, that is the
+## middle); with nobody to look at, the middle of the map.
+func _far_point() -> Vector2:
+	if not companion.visible:
+		return world.area_rect(companion.position).get_center()
+	return companion.position + Vector2(0, -companion.height() * 0.5)
 
 
 ## Close-up zoom: indoors the largest whole zoom that still shows the companion's room with its walls;
-## outdoors the zoom from the settings.
+## outdoors the zoom from the settings. Never less than the map filling the window.
 func _near_zoom() -> float:
 	var r := _room_frame()
 	if r.size.x <= 0.0:
-		return float(Settings.zoom)
-	return clampf(minf(floorf(minf(1280.0 / r.size.x, 800.0 / r.size.y)), Settings.zoom), _far_zoom(), 6.0)
+		return maxf(float(Settings.zoom), _far_zoom())
+	var v := _view()
+	return maxf(minf(minf(floorf(minf(v.x / r.size.x, v.y / r.size.y)), Settings.zoom), 6.0), _far_zoom())
 
 
 func _near_point() -> Vector2:
@@ -754,7 +782,7 @@ func _follow_area() -> void:
 		_room = world.room_at(p)
 		_zoom = _target_zoom()
 		camera.zoom = Vector2.ONE * _zoom
-		camera.position = _near_point() if _zoom > _far_zoom() else r.get_center()
+		camera.position = _near_point() if _zoom > _far_zoom() else _far_point()
 		camera.reset_smoothing()
 	var room := world.room_at(p)
 	if room != "":
@@ -826,7 +854,7 @@ func _update_hover() -> void:
 		_hover.text = text
 		_hover.reset_size()
 		_hover.position = (screen + Vector2(-_hover.size.x * 0.5, -_hover.size.y - 14.0)).clamp(
-			Vector2(4, 4), Vector2(1276, 796) - _hover.size)
+			Vector2(4, 4), _view() - Vector2(4, 4) - _hover.size)
 
 
 func _mb(monitor: Performance.Monitor) -> int:

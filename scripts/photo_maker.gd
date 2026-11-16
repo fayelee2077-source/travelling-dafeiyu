@@ -11,9 +11,17 @@ const H := 720
 
 ## shot: the screen; focus: the companion on it (pixels); world_px: screen pixels per world pixel.
 func make(shot: Image, focus: Vector2, world_px: float, caption: String) -> String:
-	var x := clampi(int(focus.x - W / 2.0), 0, maxi(shot.get_width() - W, 0))
-	var y := clampi(int(focus.y - H * 0.55), 0, maxi(shot.get_height() - H, 0))
-	var crop := shot.get_region(Rect2i(x, y, mini(W, shot.get_width()), mini(H, shot.get_height())))
+	# a W x H piece of the screen; a small or narrow window gives a smaller piece of the same shape, scaled up
+	var cw := mini(W, shot.get_width())
+	var ch := mini(H, shot.get_height())
+	if cw * H > ch * W:
+		cw = ch * W / H
+	else:
+		ch = cw * H / W
+	var x := clampi(int(focus.x - cw / 2.0), 0, maxi(shot.get_width() - cw, 0))
+	var y := clampi(int(focus.y - ch * 0.55), 0, maxi(shot.get_height() - ch, 0))
+	var crop := shot.get_region(Rect2i(x, y, cw, ch))
+	world_px *= float(W) / cw
 
 	var vp := SubViewport.new()
 	vp.size = Vector2i(W + 80, H + 150)
@@ -30,7 +38,7 @@ func make(shot: Image, focus: Vector2, world_px: float, caption: String) -> Stri
 	pic.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	var mat := ShaderMaterial.new()
 	mat.shader = load("res://scripts/photo.gdshader")
-	mat.set_shader_parameter("focus", (focus - Vector2(x, y)) / Vector2(W, H))
+	mat.set_shader_parameter("focus", (focus - Vector2(x, y)) / Vector2(cw, ch))
 	mat.set_shader_parameter("px", world_px / W)
 	mat.set_shader_parameter("aspect", float(W) / H)
 	pic.material = mat

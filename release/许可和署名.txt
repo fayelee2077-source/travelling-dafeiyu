@@ -43,3 +43,8 @@
   Copyright (c) 2014-present Godot Engine contributors.
   Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.
   Godot 自带的第三方组件（FreeType、ENet、mbed TLS 等）的许可见「Godot许可.txt」。
+
+六、字体（网页版）
+  网页版（DSH 插件里的 web 文件夹）带了一个中文字体：Noto Sans SC（思源黑体同源的 Noto Sans CJK）Regular 2.004，
+  © 2014-2021 Adobe，SIL Open Font License 1.1，https://github.com/notofonts/noto-cjk 。
+  许可全文见「字体许可.txt」。窗口版不带它，用的是电脑自己的字体。
