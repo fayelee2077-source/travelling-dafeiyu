@@ -7,7 +7,8 @@ $ErrorActionPreference = "Stop"
 $Root = Split-Path $PSScriptRoot -Parent
 $Name = "旅行的大肥鱼_v$Version"
 $Out = Join-Path $Root "build\$Name"
-$Zip = "$Out.zip"
+# the zip gets an ASCII name: GitHub drops Chinese characters from uploaded file names (11-16: "_v0.2.2.zip")
+$Zip = Join-Path $Root "build\travelling-dafeiyu_v$Version.zip"
 $Utf8Bom = New-Object System.Text.UTF8Encoding $true
 
 foreach ($p in @("assets\ai_home\world.json", "assets\travel\places.json")) {
