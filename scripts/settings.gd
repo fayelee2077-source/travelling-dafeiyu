@@ -49,11 +49,14 @@ var perf_every := 0.0           # log frame rate and memory every this many seco
 var clean := false              # no status dot or toasts (recording videos)
 var travel_now := ""            # tests: she sets off for this place at start (the real trigger is her DSH tool)
 var travel_message := ""        # tests: what she writes on the postcard
+var travel_to := ""             # tests: who the postcard is addressed to (e.g. 妈妈, 姐姐)
 var trip_minutes := 0.0         # tests: trip length in minutes (0 = the normal length)
 var travel_save := true         # keep trips in user://travel.json (off for tests, so the real record is untouched)
-var travel_seed := ""           # tests: start with these trips done, e.g. "hangzhou,hangzhou" (not saved)
+var travel_seed := ""           # tests: start with these trips done, e.g. "hangzhou,xiamen:妈妈" (not saved)
 var album_after := 0.0          # tests: open the travel album after this many seconds
 var album_back := false         # tests: and turn its postcard over
+var album_filter := ""          # tests: filter album by recipient ("*" = all, "" = kept, or name)
+var test_souvenir := ""         # tests: trigger a souvenir interaction after 0.8s (e.g. "hangzhou,xiamen")
 var test_magazine := ""         # tests: a travel magazine on the coffee table (not saved)
 var inside := ""                # tests: "on" / "off" = she is / is not in the little home (not saved)
 var notes_dir := ""             # tests: another coffee-table notes folder ("" = 文档\旅行的大肥鱼\茶几纸条)
@@ -134,11 +137,14 @@ func _init() -> void:
 			"clean": clean = true
 			"travel-now": travel_now = val
 			"travel-message": travel_message = val
+			"travel-to": travel_to = val
 			"trip-minutes": trip_minutes = val.to_float()
 			"travel-save": travel_save = val != "off"
 			"travel-seed": travel_seed = val
 			"album-after": album_after = val.to_float()
 			"album-back": album_back = true
+			"album-filter": album_filter = val
+			"use-souvenir": test_souvenir = val
 			"magazine": test_magazine = val
 			"inside": inside = val
 			"notes-dir": notes_dir = val

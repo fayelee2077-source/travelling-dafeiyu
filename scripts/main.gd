@@ -21,6 +21,22 @@ const IDLE_LIFE := [
 # rain: stay in (watch the rain from the window); snow: in, or out at the door to look at it
 const IDLE_RAIN := [["window", "stand", 3], ["bookshelf", "stand", 2], ["sofa", "sit", 3]]
 const IDLE_SNOW := [["window", "stand", 3], ["bookshelf", "stand", 2], ["sofa", "sit", 3], ["front", "stand", 2]]
+const SOUVENIR_META := {
+	"hangzhou": {"spot": "sofa", "sfx": "tea_pour", "toast": "泡了一杯热乎乎的西湖龙井放在茶几上"},
+	"suzhou": {"spot": "souvenirs", "sfx": "chime_soft", "toast": "苏绣团扇轻轻晃了晃，扇坠穗子摆了两下"},
+	"huangshan": {"spot": "souvenirs", "sfx": "chime_soft", "toast": "给迎客松小盆景喷了一层细细的水雾"},
+	"xiamen": {"spot": "souvenirs", "sfx": "music_box", "toast": "钢琴音乐盒叮叮咚咚响了起来"},
+	"xuexiang": {"spot": "souvenirs", "sfx": "chime_soft", "toast_on": "雪屋小摆件的暖黄小窗灯亮起来了", "toast_off": "把雪屋小摆件的小窗灯轻轻关上了"},
+	"shanghai": {"spot": "souvenirs", "sfx": "chime_soft", "toast": "东方明珠水晶球里的亮片雪花飘起来了"},
+	"suichang": {"spot": "dining", "sfx": "chime_soft", "toast": "剥开一只遂昌长粽放在餐桌上，竹叶香飘出来了"},
+	"xianghu": {"spot": "dining", "sfx": "chime_soft", "toast": "盛了一小碟脆生生的萧山萝卜干放在餐桌上"},
+	"beijing": {"spot": "souvenirs", "sfx": "chime_soft", "toast": "泥塑兔儿爷神气地晃了晃耳朵"},
+	"xian": {"spot": "souvenirs", "sfx": "chime_soft", "toast": "小陶马稳稳立在柜子上，像刚从古城墙下跑回来"},
+	"guilin": {"spot": "souvenirs", "sfx": "chime_soft", "toast": "摸了摸温润光滑的漓江花纹鹅卵石"},
+	"dali": {"spot": "postcards", "sfx": "chime_soft", "toast": "墙上的蓝白扎染挂布在屋里轻轻摆了摆"},
+	"chengdu": {"spot": "souvenirs", "sfx": "chime_soft", "toast": "软乎乎的熊猫玩偶轻轻歪了歪脑袋"},
+	"dunhuang": {"spot": "souvenirs", "sfx": "camel_bell", "toast": "铜驼铃轻轻响了两声，像风吹过鸣沙山"},
+}
 
 var world := World.new()
 var companion := Companion.new()
@@ -56,6 +72,8 @@ var _marker := Sprite2D.new()    # bobbing arrow over the companion in the whole
 var _photo := PhotoMaker.new()
 var _photo_busy := false         # taking a photo: close up first, then a shot without the UI
 var _photo_taken := false
+var _souvenir_tested := false
+var _sound := Soundscape.new()
 var travel := Travel.new()
 var keepsakes := Keepsakes.new()
 var notes := Notes.new()
@@ -99,9 +117,8 @@ func _ready() -> void:
 	var ambient := Ambient.new()
 	ambient.setup(world, companion)
 	world.add_child(ambient)
-	var sound := Soundscape.new()
-	sound.setup(world, companion, ambient)
-	world.add_child(sound)
+	_sound.setup(world, companion, ambient)
+	world.add_child(_sound)
 
 	_near = Settings.start_near
 	_zoom = _target_zoom()
@@ -207,7 +224,7 @@ func _layout() -> void:
 	_dot.position = vis - Vector2(26, 26)
 	_toast.position = Vector2(20, vis.y - 40)
 	_fade.size = vis
-	_magazines.position = Vector2(520, 220) + mid
+	_magazines.position = Vector2(440, 170) + mid
 	_album.fit(vis)
 
 
@@ -224,34 +241,68 @@ func _build_magazines() -> void:
 	_magazines.add_child(box)
 	var title := Label.new()
 	title.text = "在茶几上放一本旅行杂志"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 22)
 	box.add_child(title)
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 10)
+	grid.add_theme_constant_override("v_separation", 8)
+	box.add_child(grid)
 	for id in travel.places:
+		if not travel.can_go(id):
+			continue
 		var b := Button.new()
+		b.custom_minimum_size = Vector2(180, 0)
 		b.text = "《%s》" % travel.places[id].get("short", id)
-		b.add_theme_font_size_override("font_size", 22)
+		b.add_theme_font_size_override("font_size", 20)
 		b.pressed.connect(func():
 			travel.set_magazine(id)
 			_magazines.visible = false
 			_show_toast("《%s》放在茶几上了。可以跟她提一句哦" % travel.places[id].get("short", id), 5.0))
-		box.add_child(b)
+		grid.add_child(b)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	box.add_child(row)
 	for pair in [["收起来", true], ["算了", false]]:
 		var b := Button.new()
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.text = pair[0]
-		b.add_theme_font_size_override("font_size", 22)
+		b.add_theme_font_size_override("font_size", 20)
 		var take: bool = pair[1]
 		b.pressed.connect(func():
 			if take:
 				travel.set_magazine("")
 			_magazines.visible = false)
-		box.add_child(b)
+		row.add_child(b)
 	_magazines.visible = false
 	_ui.add_child(_magazines)
 
 
 func _on_postcard(trip: Dictionary) -> void:
 	var p: Dictionary = travel.places.get(trip["place"], {})
-	_show_toast("收到一张从%s寄来的明信片！点左下角「旅行相册」看看" % p.get("short", ""), 8.0)
+	var who := str(trip.get("to", "")).strip_edges()
+	if who != "":
+		_show_toast("收到一张从%s寄给%s的明信片！点左上角「旅行相册」看看" % [p.get("short", ""), who], 8.0)
+	else:
+		_show_toast("收到一张从%s寄来的明信片！点左上角「旅行相册」看看" % p.get("short", ""), 8.0)
+
+
+func _use_souvenir(pid: String, quiet_toast := false) -> void:
+	if pid == "":
+		return
+	keepsakes.trigger(pid)
+	var meta: Dictionary = SOUVENIR_META.get(pid, {})
+	_sound.play_sfx(str(meta.get("sfx", "chime_soft")))
+	if quiet_toast:
+		return
+	var msg := ""
+	if pid == "xuexiang":
+		msg = str(meta.get("toast_on" if keepsakes.is_snow_lamp_on() else "toast_off", ""))
+	else:
+		msg = str(meta.get("toast", ""))
+	if msg != "":
+		_show_toast(msg, 4.0)
 
 
 func _on_came_back(trip: Dictionary) -> void:
@@ -336,7 +387,7 @@ func _on_message(msg: Dictionary) -> void:
 
 
 ## Her photo tool: the window as it is now (without the buttons and notes), for her to see herself. Away on a
-## trip nobody is home, so she gets the postcard she sent instead, once it has arrived.
+## trip nobody is home, so she gets the scenic view on the road (or her postcard once halfway).
 func _reply_photo(msg: Dictionary) -> void:
 	var why := ""
 	var image := ""
@@ -344,9 +395,10 @@ func _reply_photo(msg: Dictionary) -> void:
 	var a := travel.away()
 	if not a.is_empty():
 		var card: String = travel.places.get(a["place"], {}).get("postcard", "")
-		why = "no_postcard_yet" if not a["postcard"] or card == "" else ""
-		if why == "":
-			kind = "postcard"
+		if card == "" or not ResourceLoader.exists(Travel.DIR + card):
+			why = "no_postcard_yet"
+		else:
+			kind = "postcard" if a["postcard"] else "on_road"
 			image = Marshalls.raw_to_base64((load(Travel.DIR + card) as Texture2D).get_image().save_jpg_to_buffer(0.85))
 	else:
 		_ui.visible = false
@@ -376,9 +428,16 @@ func _apply_chosen(c) -> void:
 	if not (c is Dictionary):
 		_chosen = {}
 		return
-	var spot := _find_activity(str(c.get("name", "")))
-	_chosen = {} if spot == "" else {"spot": spot, "name": c["name"], "until": float(c.get("until", 0)),
-		"reason": str(c.get("reason", ""))}
+	var res := _resolve_activity(str(c.get("name", "")))
+	if res.is_empty():
+		_chosen = {}
+		return
+	var until := float(c.get("until", 0))
+	var same := str(_chosen.get("name", "")) == str(c.get("name", res["name"])) \
+		and absf(float(_chosen.get("until", 0)) - until) < 1.0
+	_chosen = {"spot": res["spot"], "name": str(c.get("name", res["name"])), "until": until,
+		"reason": str(c.get("reason", "")), "souvenir": res["souvenir"],
+		"triggered": bool(_chosen.get("triggered", false)) if same else false}
 
 
 ## What only this window knows, for the plugin's report: the weather, where she is standing, whether she got
@@ -402,13 +461,13 @@ func _do_cmd(op: String, msg: Dictionary) -> String:
 				return busy
 			if not travel.is_inside():
 				return "outside"
-			var spot := _find_activity(str(msg.get("activity", "")))
-			if spot == "":
+			var res := _resolve_activity(str(msg.get("activity", "")))
+			if res.is_empty():
 				return "unknown_activity"
 			var minutes := clampf(float(msg.get("minutes", 20)), 1.0, 240.0)
-			_chosen = {"spot": spot, "name": _activity_name(spot), "until": Time.get_unix_time_from_system() + minutes * 60.0,
-				"reason": str(msg.get("reason", "")).left(100)}
-			Settings.log_line("home: she chose %s for %d min" % [spot, int(minutes)])
+			_chosen = {"spot": res["spot"], "name": res["name"], "until": Time.get_unix_time_from_system() + minutes * 60.0,
+				"reason": str(msg.get("reason", "")).left(100), "souvenir": res["souvenir"], "triggered": false}
+			Settings.log_line("home: she chose %s (%s) for %d min" % [res["name"], res["spot"], int(minutes)])
 			return ""
 		"enter":
 			if busy != "":
@@ -430,7 +489,7 @@ func _do_cmd(op: String, msg: Dictionary) -> String:
 				return busy
 			if not travel.can_go(str(msg.get("place", ""))):
 				return "unknown_place"
-			travel.go(str(msg.get("place", "")), str(msg.get("message", "")))
+			travel.go(str(msg.get("place", "")), str(msg.get("message", "")), 0.0, str(msg.get("to", "")))
 			_chosen = {}
 			return ""
 		"come_back":
@@ -443,7 +502,7 @@ func _do_cmd(op: String, msg: Dictionary) -> String:
 				return "not_away"
 			if travel.away()["postcard"]:
 				return "postcard_sent"
-			travel.write_postcard(str(msg.get("text", "")))
+			travel.write_postcard(str(msg.get("text", "")), msg.get("to", null))
 			return ""
 		"note":
 			if busy != "":
@@ -470,18 +529,50 @@ func _activity_name(spot: String) -> String:
 	return s.get("do", label.get_slice("：", label.get_slice_count("：") - 1))
 
 
-func _find_activity(text: String) -> String:
+func _souvenir_spot(pid: String) -> String:
+	var want := str(SOUVENIR_META.get(pid, {}).get("spot", "souvenirs"))
+	return want if world.spots.has(want) else ("souvenirs" if world.spots.has("souvenirs") else "")
+
+
+func _all_activity_names() -> Array:
+	var out := _activities().map(_activity_name)
+	for pid in travel.souvenirs():
+		var act := travel.souvenir_action(str(pid))
+		if act != "" and not out.has(act):
+			out.append(act)
+	return out
+
+
+func _resolve_activity(text: String) -> Dictionary:
 	text = text.strip_edges()
 	if text == "":
-		return ""
+		return {}
 	for k in _activities():
-		if _activity_name(k) == text:
-			return k
+		var n := _activity_name(k)
+		if n == text:
+			return {"spot": k, "name": n, "souvenir": ""}
+	for pid in travel.souvenirs():
+		var act := travel.souvenir_action(str(pid))
+		var spot := _souvenir_spot(str(pid))
+		if act != "" and act == text and spot != "":
+			return {"spot": spot, "name": act, "souvenir": str(pid)}
 	for k in _activities():
 		var n := _activity_name(k)
 		if n.contains(text) or text.contains(n):
-			return k
-	return ""
+			return {"spot": k, "name": n, "souvenir": ""}
+	for pid in travel.souvenirs():
+		var act := travel.souvenir_action(str(pid))
+		var sname := str(travel.places.get(pid, {}).get("souvenir", ""))
+		var spot := _souvenir_spot(str(pid))
+		if spot != "" and act != "" and (act.contains(text) or text.contains(act)
+				or (sname != "" and (sname.contains(text) or text.contains(sname)))):
+			return {"spot": spot, "name": act, "souvenir": str(pid)}
+	return {}
+
+
+func _find_activity(text: String) -> String:
+	var res := _resolve_activity(text)
+	return str(res.get("spot", ""))
 
 
 func _chosen_active() -> bool:
@@ -507,9 +598,11 @@ func _world_report() -> Dictionary:
 		"at": label.get_slice("：", label.get_slice_count("：") - 1) if travel.is_inside() and companion.visible else "",
 		"places": places, "trips": travel.data["trips"].filter(func(t): return t["home"]).size(),
 		"postcards": travel.trips_with_postcards().size(),
+		"wall_postcards": travel.wall_trips().size(),
+		"sent_to": travel.sent_to_labels(),
 		"souvenirs": travel.souvenirs().map(func(p): return travel.places.get(p, {}).get("souvenir", p)),
 		"wall": travel.wall_labels(keepsakes.info().get("wall_slots", []).size()), "shelf": travel.shelf_labels(),
-		"away": null, "magazine": null, "doing": null, "activities": _activities().map(_activity_name),
+		"away": null, "magazine": null, "doing": null, "activities": _all_activity_names(),
 	}
 	if _chosen_active() and travel.is_inside():
 		r["doing"] = {"name": _chosen["name"], "reason": _chosen["reason"],
@@ -517,7 +610,8 @@ func _world_report() -> Dictionary:
 			"minutes_left": ceili((float(_chosen["until"]) - Time.get_unix_time_from_system()) / 60.0)}
 	if not a.is_empty():
 		r["away"] = {"place": a["place"], "name": travel.places.get(a["place"], {}).get("name", a["place"]),
-			"left": a["left"], "back": a["back"], "postcard": a["postcard"], "wrote": a["message"] != ""}
+			"left": a["left"], "back": a["back"], "postcard": a["postcard"], "wrote": a["message"] != "",
+			"to": str(a.get("to", "")), "scenic": travel.scenic_note(a)}
 	var mag: String = travel.data["magazine"]
 	if mag != "":
 		r["magazine"] = {"id": mag, "name": travel.places.get(mag, {}).get("short", mag), "new": travel.take_magazine_news()}
@@ -648,6 +742,10 @@ func _process(delta: float) -> void:
 		else:
 			companion.visible = true
 			companion.perform(_decide())
+			if _chosen_active() and str(_chosen.get("souvenir", "")) != "" and not bool(_chosen.get("triggered", false)) \
+					and companion.at_spot == _chosen["spot"] and not companion.is_busy_walking():
+				_chosen["triggered"] = true
+				_use_souvenir(str(_chosen["souvenir"]))
 		world.nobody_home = not companion.visible
 		world.occupied_room = world.room_at(companion.position)
 		# she fades out passing through the door
@@ -712,9 +810,14 @@ func _process(delta: float) -> void:
 		_shots += 1
 		_shot_done = not many
 		Settings.log_line("screenshot: %s" % path)
+	if Settings.test_souvenir != "" and not _souvenir_tested and _clock > 0.8 and (_area == "house" or _clock > 6.0):
+		_souvenir_tested = true
+		for pid in Settings.test_souvenir.split(",", false):
+			_use_souvenir(pid.strip_edges())
 	if Settings.album_after > 0.0 and _clock > Settings.album_after:
 		Settings.album_after = 0.0
-		_album.open()
+		var af := "*" if Settings.album_filter in ["", "*"] else ("" if Settings.album_filter == "home" else Settings.album_filter)
+		_album.open({}, af)
 		if Settings.album_back:
 			_album.turn_card()
 	if Settings.photo_after > 0.0 and _clock > Settings.photo_after and not _photo_taken:
@@ -890,12 +993,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if not event.pressed and _press_at >= 0.0 and _clock - _press_at < 0.4:
-			# a click on the postcard wall / shelf opens the album, on the coffee table the magazines
-			var hit := keepsakes.hit(get_viewport().get_canvas_transform().affine_inverse() * event.position)
-			if hit == "table":
-				_magazines.visible = true
-			elif hit != "":
-				_album.open()
+			var world_p: Vector2 = get_viewport().get_canvas_transform().affine_inverse() * event.position
+			var spid := keepsakes.souvenir_at(world_p)
+			if spid != "":
+				_use_souvenir(spid)
+			else:
+				# a click on the postcard wall / empty shelf opens the album, on the coffee table the magazines
+				var hit := keepsakes.hit(world_p)
+				if hit == "table":
+					_magazines.visible = true
+				elif hit != "":
+					_album.open()
 		if event.pressed:
 			_press_at = _clock
 			_press_pos = event.position

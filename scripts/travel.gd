@@ -1,12 +1,8 @@
 class_name Travel
 extends Node
 ## Trips (free version): she decides to go (her DSH tool; --travel-now in tests), walks out of the gate and
-## the home stays empty; halfway a postcard comes (her own words on the back, if she wrote any); she comes
-## back with a photo and a souvenir. Only facts are kept (user://travel.json): where, when, what came back.
-## Pictures are made beforehand (assets/travel/, tools/travel_assets.py); nothing is generated or sent anywhere.
-## Since 补充条款四·修订二 the DSH plugin keeps the record and the rules (dsh-plugin/lib/home.js): once a
-## plugin says it keeps it, this only shows what it sends (remote), kept here as a copy for when DSH is off;
-## the rules below then only run in test runs (record not saved) and with an old plugin.
+## the home stays empty; halfway a postcard comes (her own words on the back, if she wrote any, and a seasonal
+## scenic footer); she comes back with a photo and a souvenir.
 
 signal changed                       # anything the room or the album shows changed
 signal postcard_arrived(trip: Dictionary)
@@ -19,21 +15,44 @@ const FILE := "user://travel.json"
 const BEFORE_PLUGIN := "user://travel_before_plugin.json"
 const DIR := "res://assets/travel/"
 const HOURS := [8.0, 20.0]           # a trip lasts this long (real hours), the postcard comes halfway
+const SEASONS := ["winter", "winter", "spring", "spring", "spring", "summer", "summer", "summer", "autumn", "autumn", "autumn", "winter"]
+
+const SCENIC_NOTES := {
+	"hangzhou": {"spring": "苏堤的柳丝刚蘸到水，风里都是软的", "summer": "荷叶挨着荷叶，风过时翻起一片白背", "autumn": "晚风里有桂花味，雷峰塔的影子拉得很长", "winter": "断桥边的残荷立在冷水里，湖面格外安静"},
+	"suzhou": {"spring": "月洞门外的细雨，把青石板洗得发亮", "summer": "芭蕉叶大得能遮阴，池里的锦鲤躲在石影下", "autumn": "白墙角落下几片黄叶，水面上一点风也没有", "winter": "花窗格子里漏进一点冬阳，茶气散得很慢"},
+	"huangshan": {"spring": "山缝里开了小野花，云海从脚底下漫上来", "summer": "松针上挂着雾珠，山顶的风比山下凉快得多", "autumn": "日出把云海染成橘红色，松影落在石头上", "winter": "迎客松的针叶裹着白霜，踩雪声传得很远"},
+	"xiamen": {"spring": "海风潮乎乎的，老院子墙头垂下一串花", "summer": "白浪一层层拍在礁石上，阳光晒得石头暖洋洋", "autumn": "傍晚的海风不燥了，巷子里飘来一段钢琴声", "winter": "南方的冬天海还是蓝的，浪花漫过脚边的沙"},
+	"xuexiang": {"spring": "屋檐的厚雪化出冰溜子，滴答滴答落在木阶上", "summer": "林子里的木屋收起了厚雪，夜里风还是很凉", "autumn": "松林先黄了一层，木屋烟囱早早升起了白烟", "winter": "屋顶的雪厚得像白蘑菇，红灯笼把雪照成暖橙色"},
+	"shanghai": {"spring": "江风吹过来带点凉意，对岸的灯一盏接一盏亮了", "summer": "夏夜的江面晃着粉紫色的灯影，汽笛声慢悠悠的", "autumn": "梧桐叶落了满街，傍晚江上的晚霞像橘子汽水", "winter": "江边的风有点冻耳朵，亮灯的塔在夜空里特别清楚"},
+	"suichang": {"spring": "山谷的晨雾还没散，竹林里全是新笋和泥土味", "summer": "蓄满水的梯田像一块块亮镜子，把天光接住了", "autumn": "一层层稻田黄透了，山腰小村飘着做长粽的香气", "winter": "清晨梯田结了一层薄霜，山里安静得只听见竹叶响"},
+	"xianghu": {"spring": "湖面像没擦干的玻璃，远山淡淡地洇在水里", "summer": "木栈道边的芦苇绿得发亮，小木舟轻轻晃着水波", "autumn": "芦苇荡全变成金黄色了，夕阳把湖水染得暖融融", "winter": "起雾的早晨，湖面像没擦干的玻璃"},
+	"beijing": {"spring": "灰瓦屋檐上掠过鸽哨声，胡同口的槐花刚开", "summer": "老槐树把青石板遮出大片凉阴，蝉声一声接一声", "autumn": "金黄的银杏叶铺在灰瓦上，风里有糖炒栗子香", "winter": "细雪静静落在青砖灰瓦上，枝头还挂着几个冻红柿"},
+	"xian": {"spring": "古老的城砖缝里冒出小草，春风顺着城墙跑得很远", "summer": "太阳落下去以后，青砖还留着白天的余温", "autumn": "天色刚暗成群青蓝，城墙上的一排红灯笼全亮了", "winter": "城墙上的红灯笼在冷风里轻轻晃，暖光映着旧砖"},
+	"guilin": {"spring": "细雨像烟一样拢着青峰，竹筏划开绿绸子似的水", "summer": "江水清得能数见水底鹅卵石，把脚伸进去凉丝丝的", "autumn": "秋天的江面平得像块碧玉，一层层山影倒映在水里", "winter": "薄雾贴着江面慢慢走，远处的青山像淡墨画出来的"},
+	"dali": {"spring": "苍山腰上系着一条白云带，洱海蓝得晃眼睛", "summer": "午后的风穿过水边大树，湖面上碎银似地闪着光", "autumn": "天高得没有一丝杂色，晒在院里的蓝白染布随风鼓起来", "winter": "冬天的阳光还是暖的，水鸟贴着蓝盈盈的湖面飞"},
+	"chengdu": {"spring": "竹叶间漏下碎阳光，盖碗茶的盖子轻轻磕出清脆响声", "summer": "高高的翠竹挡住了暑气，竹椅坐上去凉快又踏实", "autumn": "细雨打在竹叶上沙沙响，铜茶壶嘴冒着一缕白热气", "winter": "捧着热乎乎的盖碗茶窝在竹椅里，半天都不想起来"},
+	"dunhuang": {"spring": "风吹过沙脊留下一道道细波纹，沙粒簌簌地轻响", "summer": "傍晚的沙山还带着日头的暖意，月牙泉绿得像块宝石", "autumn": "夕阳把连绵的沙丘染成金橙色，风里有远远的驼铃声", "winter": "清冷的夕光落在金色沙脊上，一弯泉水安安静静映着天"},
+}
+
+const SOUVENIR_DO := {
+	"hangzhou": "泡龙井茶", "suzhou": "摇丝绸团扇", "huangshan": "打理迎客松盆景", "xiamen": "听钢琴音乐盒",
+	"xuexiang": "点亮雪屋小摆件", "shanghai": "摇东方明珠水晶球", "suichang": "尝遂昌长粽", "xianghu": "尝萧山萝卜干",
+	"beijing": "看兔儿爷", "xian": "看小陶马", "guilin": "摸漓江鹅卵石", "dali": "看扎染挂布",
+	"chengdu": "抱熊猫玩偶", "dunhuang": "摇驼铃",
+}
 
 var places: Dictionary = {}          # id -> {name, en, short, postcard, photos, souvenir, souvenir_tex, magazine_tex}
-# trips: [{place, left, back, postcard_at, message, postcard (arrived), home (back home), photo, souvenir}]
-# inside: she is in the little home (she goes in and out herself, with her DSH tools; empty house until then)
-# notes_read: coffee-table note file -> its modified time when she read it; note_left: when she last left one
 var data := {"trips": [], "magazine": "", "magazine_new": false, "unseen": 0, "inside": false, "notes_read": {},
 	"note_left": 0.0, "outfit": "maid"}
 var remote := false                  # the plugin keeps the record (data["kept_by_plugin"] in the saved copy)
 var notes_state := {}                # remote: {unread, on_table} of the coffee-table notes
 var leaving := ""                    # place she is walking to the gate for
 var _leave_message := ""
+var _leave_to := ""
 var _leave_seconds := 0.0
 var _check := 0.0
-var _got_remote := false             # this run has had the plugin's record (later ones show what changed)
-var quiet_next := 0                  # records from the plugin to take without showing changes (handing over)
+var _got_remote := false
+var quiet_next := 0
 var _rng := RandomNumberGenerator.new()
 
 
@@ -48,17 +67,51 @@ func _ready() -> void:
 			data.merge(d, true)
 			remote = bool(data.get("kept_by_plugin", false))
 			notes_state = data.get("notes", {})
-	for id in Settings.travel_seed.split(",", false):
-		_seed_trip(id)
+	for spec in Settings.travel_seed.split(",", false):
+		var parts := spec.split(":", true, 1)
+		_seed_trip(parts[0], parts[1] if parts.size() > 1 else Settings.travel_to)
 	if Settings.inside != "":
 		data["inside"] = Settings.inside == "on"
 	if Settings.test_magazine != "":
 		data["magazine"] = Settings.test_magazine
 	if Settings.travel_now != "":
-		go(Settings.travel_now, Settings.travel_message, Settings.trip_minutes * 60.0)
+		go(Settings.travel_now, Settings.travel_message, Settings.trip_minutes * 60.0, Settings.travel_to)
 
 
-## A place is ready once its postcard and photos are made (she must not come back with nothing to show).
+static func clean_to(raw: String) -> String:
+	var s := raw.strip_edges()
+	if s.begins_with("寄给：") or s.begins_with("寄给:"):
+		s = s.substr(3).strip_edges()
+	elif s.begins_with("给"):
+		s = s.substr(1).strip_edges()
+	s = s.left(20)
+	return "" if s in ["家里", "家里的你", "小家", "自己"] else s
+
+
+static func season_of(t: float) -> String:
+	var d := Time.get_datetime_dict_from_unix_time(int(t + Time.get_time_zone_from_system()["bias"] * 60))
+	var m := clampi(int(d.get("month", 1)) - 1, 0, 11)
+	return SEASONS[m]
+
+
+func scenic_note(t: Dictionary) -> String:
+	var pid := str(t.get("place", ""))
+	var s := str(t.get("season", ""))
+	if s == "":
+		s = Settings.force_season if Settings.force_season != "" else season_of(float(t.get("left", _now())))
+	var p: Dictionary = places.get(pid, {})
+	var notes: Dictionary = p.get("notes", {}) if p.get("notes") is Dictionary else {}
+	if notes.has(s):
+		return str(notes[s])
+	return str(SCENIC_NOTES.get(pid, {}).get(s, ""))
+
+
+func souvenir_action(pid: String) -> String:
+	var p: Dictionary = places.get(pid, {})
+	var act := str(p.get("souvenir_do", ""))
+	return act if act != "" else str(SOUVENIR_DO.get(pid, ""))
+
+
 func can_go(place: String) -> bool:
 	return places.has(place) and places[place].get("postcard", "") != "" and not places[place].get("photos", []).is_empty()
 
@@ -78,19 +131,16 @@ func is_inside() -> bool:
 
 func set_inside(on: bool) -> void:
 	if remote:
-		return                           # the plugin already has it
+		return
 	data["inside"] = on
 	Settings.log_line("home: she %s" % ("came in" if on else "went out"))
 	_store()
 	changed.emit()
 
 
-## Remote: the record the plugin sends (on connecting and after every change). Shows what changed: the
-## postcard coming, her coming home, setting out, going out of the little home.
 func apply_remote(d: Dictionary) -> void:
 	var first := not remote or not _got_remote or quiet_next > 0
 	quiet_next = maxi(quiet_next - 1, 0)
-	# the record this window kept itself, kept once more before the plugin's replaces it
 	if Settings.travel_save and not data.get("kept_by_plugin", false) and FileAccess.file_exists(FILE) \
 			and not FileAccess.file_exists(BEFORE_PLUGIN):
 		DirAccess.copy_absolute(ProjectSettings.globalize_path(FILE), ProjectSettings.globalize_path(BEFORE_PLUGIN))
@@ -124,7 +174,6 @@ func apply_remote(d: Dictionary) -> void:
 	changed.emit()
 
 
-## Whether the magazine on the table is one she has not been told about yet; telling her once clears it.
 func take_magazine_news() -> bool:
 	if not data["magazine_new"]:
 		return false
@@ -133,12 +182,12 @@ func take_magazine_news() -> bool:
 	return true
 
 
-## She decided to go. She walks to the gate first (main calls set_off there). False if she cannot now.
-func go(place: String, message := "", seconds := 0.0) -> bool:
+func go(place: String, message := "", seconds := 0.0, to := "") -> bool:
 	if is_away() or leaving != "" or not can_go(place):
 		return false
 	leaving = place
 	_leave_message = message
+	_leave_to = clean_to(to)
 	_leave_seconds = seconds
 	Settings.log_line("travel: going to %s" % place)
 	return true
@@ -146,32 +195,40 @@ func go(place: String, message := "", seconds := 0.0) -> bool:
 
 func set_off() -> void:
 	if remote:
-		leaving = ""                     # only the walk to the gate was shown; the trip is the plugin's
+		leaving = ""
 		changed.emit()
 		return
 	var now := _now()
 	var length := _leave_seconds if _leave_seconds > 0.0 else _rng.randf_range(HOURS[0], HOURS[1]) * 3600.0
-	data["trips"].append({"place": leaving, "left": now, "back": now + length, "postcard_at": now + length * 0.5,
-		"message": _leave_message, "postcard": false, "home": false, "photo": "", "souvenir": ""})
+	var season := Settings.force_season if Settings.force_season != "" else season_of(now)
+	var rec := {"place": leaving, "left": now, "back": now + length, "postcard_at": now + length * 0.5,
+		"message": _leave_message, "season": season, "postcard": false, "home": false, "photo": "", "souvenir": ""}
+	if _leave_to != "":
+		rec["to"] = _leave_to
+	data["trips"].append(rec)
 	if data["magazine"] == leaving:
 		data["magazine"] = ""
 	leaving = ""
+	_leave_to = ""
 	_store()
 	changed.emit()
 
 
-## Her words for the postcard while she is away (her DSH tool); before it has come they go on its back.
-func write_postcard(text: String) -> bool:
+func write_postcard(text: String, to = null) -> bool:
 	var a := away()
 	if a.is_empty() or a["postcard"]:
 		return false
 	a["message"] = text
+	if to != null:
+		var cleaned := clean_to(str(to))
+		if cleaned != "":
+			a["to"] = cleaned
+		else:
+			a.erase("to")
 	_store()
 	return true
 
 
-## She decided to come home early (her DSH tool): she brings back only one of the photo and the souvenir
-## (keep: "photo" or "souvenir"); a postcard not mailed yet comes home with her. False if she is not away.
 func come_back_early(keep: String) -> bool:
 	var a := away()
 	if a.is_empty():
@@ -197,6 +254,11 @@ func trips_with_postcards() -> Array:
 	return data["trips"].filter(func(t): return t["postcard"])
 
 
+## Postcards kept on her own wall (unaddressed / for home). Postcards addressed to 妈妈 / 姐姐 stay in the album.
+func wall_trips() -> Array:
+	return trips_with_postcards().filter(func(t): return str(t.get("to", "")).strip_edges() == "")
+
+
 func souvenirs() -> Array:
 	var out := []
 	for t in data["trips"]:
@@ -205,24 +267,28 @@ func souvenirs() -> Array:
 	return out
 
 
-## "11月12日·杭州": which trip a postcard or souvenir came from.
 func trip_label(t: Dictionary, when: String) -> String:
 	return "%s·%s" % [day_text(float(t[when])), places.get(t["place"], {}).get("short", t["place"])]
 
 
-## The postcards on the wall (newest first, as many as it has slots), labelled by trip.
 func wall_labels(slots: int) -> Array:
-	var cards := trips_with_postcards()
+	var cards := wall_trips()
 	cards.reverse()
 	return cards.slice(0, slots).map(func(t): return trip_label(t, "postcard_at"))
 
 
-## The souvenirs on the shelf, each with the trip that first brought it home.
+func sent_to_labels() -> Array:
+	var cards := trips_with_postcards().filter(func(t): return str(t.get("to", "")).strip_edges() != "")
+	cards.reverse()
+	return cards.map(func(t): return "%s（%s）" % [str(t["to"]), trip_label(t, "postcard_at")])
+
+
 func shelf_labels() -> Array:
 	var out := []
 	for place in souvenirs():
 		var t: Dictionary = data["trips"].filter(func(x): return x["home"] and x["place"] == place and x["souvenir"] != "")[0]
-		out.append("%s（%s）" % [places.get(place, {}).get("souvenir", place), trip_label(t, "back")])
+		var prefix := "挂在墙上·" if str(place) == "dali" else ""
+		out.append("%s（%s%s）" % [places.get(place, {}).get("souvenir", place), prefix, trip_label(t, "back")])
 	return out
 
 
@@ -261,9 +327,8 @@ func _process(delta: float) -> void:
 func _come_home(a: Dictionary) -> void:
 	a["postcard"] = true
 	a["home"] = true
-	data["inside"] = true                # back from a trip into the little home
+	data["inside"] = true
 	var place: Dictionary = places.get(a["place"], {})
-	# a photo she has not brought home before, if there is one left
 	var had := []
 	for t in data["trips"]:
 		if t != a and t["place"] == a["place"]:
@@ -273,19 +338,33 @@ func _come_home(a: Dictionary) -> void:
 	var pool := fresh if not fresh.is_empty() else photos
 	a["photo"] = pool[_rng.randi() % pool.size()] if not pool.is_empty() else ""
 	a["souvenir"] = place.get("souvenir", "")
-	# home early: only the one she chose to keep
 	match a.get("early", ""):
 		"photo": a["souvenir"] = ""
 		"souvenir": a["photo"] = ""
 	data["unseen"] += 1
 
 
-func _seed_trip(place: String) -> void:
+const SEED_FALLBACK := {
+	"beijing": {"name": "北京·胡同", "short": "北京", "souvenir": "兔儿爷"},
+	"xian": {"name": "陕西·西安城墙", "short": "西安", "souvenir": "小陶马"},
+	"guilin": {"name": "广西·桂林漓江", "short": "桂林", "souvenir": "漓江鹅卵石"},
+	"dali": {"name": "云南·大理洱海", "short": "大理", "souvenir": "蓝白扎染布"},
+	"chengdu": {"name": "四川·成都竹林茶铺", "short": "成都", "souvenir": "熊猫玩偶"},
+	"dunhuang": {"name": "甘肃·敦煌鸣沙山", "short": "敦煌", "souvenir": "沙子小瓶与驼铃"},
+}
+
+func _seed_trip(place: String, to_raw := "") -> void:
 	if not places.has(place):
-		return
-	var now: float = _now() - 86400.0 * (3 - data["trips"].size())
+		if not SEED_FALLBACK.has(place):
+			return
+		places[place] = SEED_FALLBACK[place].duplicate()
+	var now: float = _now() - 86400.0 * maxf(1.0, float(6 - data["trips"].size()))
+	var season := Settings.force_season if Settings.force_season != "" else season_of(now)
 	var t := {"place": place, "left": now, "back": now + 36000.0, "postcard_at": now + 18000.0,
-		"message": Settings.travel_message, "postcard": true, "home": false, "photo": "", "souvenir": ""}
+		"message": Settings.travel_message, "season": season, "postcard": true, "home": false, "photo": "", "souvenir": ""}
+	var cleaned := clean_to(to_raw)
+	if cleaned != "":
+		t["to"] = cleaned
 	data["trips"].append(t)
 	_come_home(t)
 
@@ -306,7 +385,6 @@ func _store() -> void:
 		f.store_string(JSON.stringify(data, " "))
 
 
-## "11月9日" from a unix time (local).
 static func day_text(t: float) -> String:
 	var d := Time.get_datetime_dict_from_unix_time(int(t + Time.get_time_zone_from_system()["bias"] * 60))
 	return "%d月%d日" % [d["month"], d["day"]]

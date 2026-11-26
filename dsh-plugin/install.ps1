@@ -95,7 +95,21 @@ foreach ($f in @("index.js", "package.json", "places.json", "lib")) {
 $Web = Join-Path $Src "web"
 $HasWeb = Test-Path -LiteralPath (Join-Path $Web "index.html")
 
-# 1. 拷插件
+# 1. 拷插件（若以前装过旧版，先把旧插件代码备份一份，不碰旅行记录和配对码）
+$OldLocal = $Targets[0]
+if (Test-Path -LiteralPath (Join-Path $OldLocal "package.json")) {
+    $CodeBak = "$OldLocal.bak-" + (Get-Date -Format "yyyyMMdd-HHmmss")
+    New-Item -ItemType Directory -Force -Path (Join-Path $CodeBak "lib") | Out-Null
+    foreach ($cf in @("index.js", "package.json", "places.json")) {
+        if (Test-Path -LiteralPath (Join-Path $OldLocal $cf)) {
+            Copy-Item -LiteralPath (Join-Path $OldLocal $cf) -Destination $CodeBak -Force
+        }
+    }
+    if (Test-Path -LiteralPath (Join-Path $OldLocal "lib")) {
+        Copy-Item -Path (Join-Path $OldLocal "lib\*") -Destination (Join-Path $CodeBak "lib") -Force
+    }
+    Say "旧版插件代码已备份：$CodeBak"
+}
 foreach ($t in $Targets) {
     New-Item -ItemType Directory -Force -Path (Join-Path $t "lib") | Out-Null
     Copy-Item -LiteralPath (Join-Path $Src "index.js"), (Join-Path $Src "package.json"), (Join-Path $Src "places.json") -Destination $t -Force

@@ -9,6 +9,13 @@
    "hangzhou_photo_1.png",
    "hangzhou_photo_2.png"
   ],
+  "notes": {
+   "spring": "苏堤的柳丝刚蘸到水，风里都是软的",
+   "summer": "荷叶挨着荷叶，风过时翻起一片白背",
+   "autumn": "晚风里有桂花味，雷峰塔的影子拉得很长",
+   "winter": "断桥边的残荷立在冷水里，湖面格外安静"
+  },
+  "souvenir_do": "泡龙井茶",
   "souvenir_tex": "hangzhou_souvenir.png",
   "magazine_tex": "hangzhou_magazine.png"
  },
@@ -22,6 +29,13 @@
    "suzhou_photo_1.png",
    "suzhou_photo_2.png"
   ],
+  "notes": {
+   "spring": "月洞门外的细雨，把青石板洗得发亮",
+   "summer": "芭蕉叶大得能遮阴，池里的锦鲤躲在石影下",
+   "autumn": "白墙角落下几片黄叶，水面上一点风也没有",
+   "winter": "花窗格子里漏进一点冬阳，茶气散得很慢"
+  },
+  "souvenir_do": "摇丝绸团扇",
   "souvenir_tex": "suzhou_souvenir.png",
   "magazine_tex": "suzhou_magazine.png"
  },
@@ -35,6 +49,13 @@
    "huangshan_photo_1.png",
    "huangshan_photo_2.png"
   ],
+  "notes": {
+   "spring": "山缝里开了小野花，云海从脚底下漫上来",
+   "summer": "松针上挂着雾珠，山顶的风比山下凉快得多",
+   "autumn": "日出把云海染成橘红色，松影落在石头上",
+   "winter": "迎客松的针叶裹着白霜，踩雪声传得很远"
+  },
+  "souvenir_do": "打理迎客松盆景",
   "souvenir_tex": "huangshan_souvenir.png",
   "magazine_tex": "huangshan_magazine.png"
  },
@@ -48,6 +69,13 @@
    "xiamen_photo_1.png",
    "xiamen_photo_2.png"
   ],
+  "notes": {
+   "spring": "海风潮乎乎的，老院子墙头垂下一串花",
+   "summer": "白浪一层层拍在礁石上，阳光晒得石头暖洋洋",
+   "autumn": "傍晚的海风不燥了，巷子里飘来一段钢琴声",
+   "winter": "南方的冬天海还是蓝的，浪花漫过脚边的沙"
+  },
+  "souvenir_do": "听钢琴音乐盒",
   "souvenir_tex": "xiamen_souvenir.png",
   "magazine_tex": "xiamen_magazine.png"
  },
@@ -61,6 +89,13 @@
    "xuexiang_photo_1.png",
    "xuexiang_photo_2.png"
   ],
+  "notes": {
+   "spring": "屋檐的厚雪化出冰溜子，滴答滴答落在木阶上",
+   "summer": "林子里的木屋收起了厚雪，夜里风还是很凉",
+   "autumn": "松林先黄了一层，木屋烟囱早早升起了白烟",
+   "winter": "屋顶的雪厚得像白蘑菇，红灯笼把雪照成暖橙色"
+  },
+  "souvenir_do": "点亮雪屋小摆件",
   "souvenir_tex": "xuexiang_souvenir.png",
   "magazine_tex": "xuexiang_magazine.png"
  },
@@ -74,7 +109,174 @@
    "shanghai_photo_1.png",
    "shanghai_photo_2.png"
   ],
+  "notes": {
+   "spring": "江风吹过来带点凉意，对岸的灯一盏接一盏亮了",
+   "summer": "夏夜的江面晃着粉紫色的灯影，汽笛声慢悠悠的",
+   "autumn": "梧桐叶落了满街，傍晚江上的晚霞像橘子汽水",
+   "winter": "江边的风有点冻耳朵，亮灯的塔在夜空里特别清楚"
+  },
+  "souvenir_do": "摇东方明珠水晶球",
   "souvenir_tex": "shanghai_souvenir.png",
   "magazine_tex": "shanghai_magazine.png"
+ },
+ "suichang": {
+  "name": "丽水·遂昌",
+  "en": "Suichang · Lishui",
+  "short": "遂昌",
+  "souvenir": "遂昌长粽",
+  "postcard": "suichang_postcard.png",
+  "photos": [
+   "suichang_photo_1.png",
+   "suichang_photo_2.png"
+  ],
+  "notes": {
+   "spring": "山谷的晨雾还没散，竹林里全是新笋和泥土味",
+   "summer": "蓄满水的梯田像一块块亮镜子，把天光接住了",
+   "autumn": "一层层稻田黄透了，山腰小村飘着做长粽的香气",
+   "winter": "清晨梯田结了一层薄霜，山里安静得只听见竹叶响"
+  },
+  "souvenir_do": "尝遂昌长粽",
+  "souvenir_tex": "suichang_souvenir.png",
+  "magazine_tex": "suichang_magazine.png"
+ },
+ "xianghu": {
+  "name": "杭州·湘湖",
+  "en": "Xianghu Lake · Hangzhou",
+  "short": "湘湖",
+  "souvenir": "萧山萝卜干",
+  "postcard": "xianghu_postcard.png",
+  "photos": [
+   "xianghu_photo_1.png",
+   "xianghu_photo_2.png"
+  ],
+  "notes": {
+   "spring": "湖面像没擦干的玻璃，远山淡淡地洇在水里",
+   "summer": "木栈道边的芦苇绿得发亮，小木舟轻轻晃着水波",
+   "autumn": "芦苇荡全变成金黄色了，夕阳把湖水染得暖融融",
+   "winter": "起雾的早晨，湖面像没擦干的玻璃"
+  },
+  "souvenir_do": "尝萧山萝卜干",
+  "souvenir_tex": "xianghu_souvenir.png",
+  "magazine_tex": "xianghu_magazine.png"
+ },
+ "beijing": {
+  "name": "北京·胡同",
+  "en": "Hutong · Beijing",
+  "short": "北京",
+  "souvenir": "兔儿爷",
+  "postcard": "beijing_postcard.png",
+  "photos": [
+   "beijing_photo_1.png",
+   "beijing_photo_2.png"
+  ],
+  "notes": {
+   "spring": "灰瓦屋檐上掠过鸽哨声，胡同口的槐花刚开",
+   "summer": "老槐树把青石板遮出大片凉阴，蝉声一声接一声",
+   "autumn": "金黄的银杏叶铺在灰瓦上，风里有糖炒栗子香",
+   "winter": "细雪静静落在青砖灰瓦上，枝头还挂着几个冻红柿"
+  },
+  "souvenir_do": "看兔儿爷",
+  "souvenir_tex": "beijing_souvenir.png",
+  "magazine_tex": "beijing_magazine.png"
+ },
+ "xian": {
+  "name": "西安·城墙",
+  "en": "Ancient City Wall · Xi'an",
+  "short": "西安",
+  "souvenir": "小陶马",
+  "postcard": "xian_postcard.png",
+  "photos": [
+   "xian_photo_1.png",
+   "xian_photo_2.png"
+  ],
+  "notes": {
+   "spring": "古老的城砖缝里冒出小草，春风顺着城墙跑得很远",
+   "summer": "太阳落下去以后，青砖还留着白天的余温",
+   "autumn": "天色刚暗成群青蓝，城墙上的一排红灯笼全亮了",
+   "winter": "城墙上的红灯笼在冷风里轻轻晃，暖光映着旧砖"
+  },
+  "souvenir_do": "看小陶马",
+  "souvenir_tex": "xian_souvenir.png",
+  "magazine_tex": "xian_magazine.png"
+ },
+ "guilin": {
+  "name": "桂林·漓江",
+  "en": "Li River · Guilin",
+  "short": "桂林",
+  "souvenir": "漓江鹅卵石",
+  "postcard": "guilin_postcard.png",
+  "photos": [
+   "guilin_photo_1.png",
+   "guilin_photo_2.png"
+  ],
+  "notes": {
+   "spring": "细雨像烟一样拢着青峰，竹筏划开绿绸子似的水",
+   "summer": "江水清得能数见水底鹅卵石，把脚伸进去凉丝丝的",
+   "autumn": "秋天的江面平得像块碧玉，一层层山影倒映在水里",
+   "winter": "薄雾贴着江面慢慢走，远处的青山像淡墨画出来的"
+  },
+  "souvenir_do": "摸漓江鹅卵石",
+  "souvenir_tex": "guilin_souvenir.png",
+  "magazine_tex": "guilin_magazine.png"
+ },
+ "dali": {
+  "name": "大理·洱海",
+  "en": "Erhai Lake · Dali",
+  "short": "大理",
+  "souvenir": "蓝白扎染布",
+  "postcard": "dali_postcard.png",
+  "photos": [
+   "dali_photo_1.png",
+   "dali_photo_2.png"
+  ],
+  "notes": {
+   "spring": "苍山腰上系着一条白云带，洱海蓝得晃眼睛",
+   "summer": "午后的风穿过水边大树，湖面上碎银似地闪着光",
+   "autumn": "天高得没有一丝杂色，晒在院里的蓝白染布随风鼓起来",
+   "winter": "冬天的阳光还是暖的，水鸟贴着蓝盈盈的湖面飞"
+  },
+  "souvenir_do": "看扎染挂布",
+  "souvenir_tex": "dali_souvenir.png",
+  "magazine_tex": "dali_magazine.png"
+ },
+ "chengdu": {
+  "name": "成都·竹林茶铺",
+  "en": "Bamboo Teahouse · Chengdu",
+  "short": "成都",
+  "souvenir": "熊猫玩偶",
+  "postcard": "chengdu_postcard.png",
+  "photos": [
+   "chengdu_photo_1.png",
+   "chengdu_photo_2.png"
+  ],
+  "notes": {
+   "spring": "竹叶间漏下碎阳光，盖碗茶的盖子轻轻磕出清脆响声",
+   "summer": "高高的翠竹挡住了暑气，竹椅坐上去凉快又踏实",
+   "autumn": "细雨打在竹叶上沙沙响，铜茶壶嘴冒着一缕白热气",
+   "winter": "捧着热乎乎的盖碗茶窝在竹椅里，半天都不想起来"
+  },
+  "souvenir_do": "抱熊猫玩偶",
+  "souvenir_tex": "chengdu_souvenir.png",
+  "magazine_tex": "chengdu_magazine.png"
+ },
+ "dunhuang": {
+  "name": "敦煌·鸣沙山",
+  "en": "Mingsha Mountain · Dunhuang",
+  "short": "敦煌",
+  "souvenir": "沙子小瓶与驼铃",
+  "postcard": "dunhuang_postcard.png",
+  "photos": [
+   "dunhuang_photo_1.png",
+   "dunhuang_photo_2.png"
+  ],
+  "notes": {
+   "spring": "风吹过沙脊留下一道道细波纹，沙粒簌簌地轻响",
+   "summer": "傍晚的沙山还带着日头的暖意，月牙泉绿得像块宝石",
+   "autumn": "夕阳把连绵的沙丘染成金橙色，风里有远远的驼铃声",
+   "winter": "清冷的夕光落在金色沙脊上，一弯泉水安安静静映着天"
+  },
+  "souvenir_do": "摇驼铃",
+  "souvenir_tex": "dunhuang_souvenir.png",
+  "magazine_tex": "dunhuang_magazine.png"
  }
 }

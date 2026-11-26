@@ -162,3 +162,40 @@ test('the dress tool hears her own words for the clothes', async () => {
   assert.equal(sent.at(-1).outfit, '睡衣')
   assert.match(none.text, /衣柜里没有这套衣服。有：女仆裙、冬装、夏装、雨衣。/)
 })
+
+test('recipient, road scenic note, pre-halfway photo, and new place aliases work end-to-end', async () => {
+  const sent = []
+  const awayRoad = {
+    ...WORLD,
+    away: {
+      place: 'dunhuang', name: '敦煌·鸣沙山', left: 1764000000, back: 1764036000,
+      postcard: false, wrote: true, to: '妈妈', scenic: '夕阳把连绵的沙丘染成金橙色，风里有远远的驼铃声',
+    },
+    trips: 2, postcards: 2, wall_postcards: 1, wall: ['11月12日·杭州'], sent_to: ['姐姐（11月15日·雪乡）'],
+  }
+  const places = {
+    beijing: { name: '北京·胡同', short: '北京' },
+    dunhuang: { name: '敦煌·鸣沙山', short: '敦煌' },
+  }
+  const t = Object.fromEntries(createTools(async (m) => {
+    sent.push(m)
+    if (m.op === 'photo') {
+      return { ok: true, kind: 'on_road', image: Buffer.from('ROADJPG').toString('base64'), mime: 'image/jpeg', world: awayRoad }
+    }
+    return { ok: true, why: '', world: awayRoad }
+  }, async (_d, type) => ({ attachmentId: 'road1', mediaType: type }), places).map((tool) => [tool.name, defineToolLocal(tool)]))
+
+  const go = await t.little_home_travel.execute({ place: '月牙泉', message: '沙子在唱歌', to: '给妈妈' })
+  assert.deepEqual(sent.at(-1), { t: 'cmd', op: 'travel', place: 'dunhuang', message: '沙子在唱歌', to: '妈妈' })
+  assert.match(go.text, /这次的明信片会寄给妈妈/)
+  assert.match(go.text, /寄给妈妈的明信片还在路上/)
+  assert.match(go.text, /路上的风物小注：「夕阳把连绵的沙丘染成金橙色/)
+  assert.match(go.text, /另外还专门寄出过明信片给：姐姐（11月15日·雪乡）/)
+
+  const shot = await t.little_home_photo.execute({})
+  assert.match(shot.text, /正在去敦煌·鸣沙山的路上.*这是那边的风景/)
+  assert.equal(shot.image.attachmentId, 'road1')
+
+  await t.little_home_postcard.execute({ text: '改寄给姐姐啦', to: '姐姐' })
+  assert.deepEqual(sent.at(-1), { t: 'cmd', op: 'postcard', text: '改寄给姐姐啦', to: '姐姐' })
+})

@@ -10,7 +10,7 @@ import { Notes, dayText } from './notes.js'
 
 const HOURS = [8, 20]
 const FILE = 'home.json'
-// trips: [{place, left, back, postcard_at, message, postcard (arrived), home (back home), photo, souvenir, early?}]
+// trips: [{place, left, back, postcard_at, message, to?, season?, postcard (arrived), home (back home), photo, souvenir, early?}]
 // chosen: what she chose to do {name, until (unix seconds), reason}; activities / wall_slots: told by the window
 const EMPTY = () => ({
   trips: [], magazine: '', magazine_new: false, unseen: 0, inside: false, notes_read: {}, note_left: 0,
@@ -20,6 +20,125 @@ const EMPTY = () => ({
 export const OUTFITS = { maid: '女仆裙', winter: '冬装', summer: '夏装', rain: '雨衣' }
 const DRESS = '换衣服'          // the wardrobe in the house, where she changes
 const SEASONS = ['winter', 'winter', 'spring', 'spring', 'spring', 'summer', 'summer', 'summer', 'autumn', 'autumn', 'autumn', 'winter']
+
+// Printed scenic footer on a postcard back (place + season), distinct from her own handwritten message.
+export const SCENIC_NOTES = {
+  hangzhou: {
+    spring: '苏堤的柳丝刚蘸到水，风里都是软的',
+    summer: '荷叶挨着荷叶，风过时翻起一片白背',
+    autumn: '晚风里有桂花味，雷峰塔的影子拉得很长',
+    winter: '断桥边的残荷立在冷水里，湖面格外安静',
+  },
+  suzhou: {
+    spring: '月洞门外的细雨，把青石板洗得发亮',
+    summer: '芭蕉叶大得能遮阴，池里的锦鲤躲在石影下',
+    autumn: '白墙角落下几片黄叶，水面上一点风也没有',
+    winter: '花窗格子里漏进一点冬阳，茶气散得很慢',
+  },
+  huangshan: {
+    spring: '山缝里开了小野花，云海从脚底下漫上来',
+    summer: '松针上挂着雾珠，山顶的风比山下凉快得多',
+    autumn: '日出把云海染成橘红色，松影落在石头上',
+    winter: '迎客松的针叶裹着白霜，踩雪声传得很远',
+  },
+  xiamen: {
+    spring: '海风潮乎乎的，老院子墙头垂下一串花',
+    summer: '白浪一层层拍在礁石上，阳光晒得石头暖洋洋',
+    autumn: '傍晚的海风不燥了，巷子里飘来一段钢琴声',
+    winter: '南方的冬天海还是蓝的，浪花漫过脚边的沙',
+  },
+  xuexiang: {
+    spring: '屋檐的厚雪化出冰溜子，滴答滴答落在木阶上',
+    summer: '林子里的木屋收起了厚雪，夜里风还是很凉',
+    autumn: '松林先黄了一层，木屋烟囱早早升起了白烟',
+    winter: '屋顶的雪厚得像白蘑菇，红灯笼把雪照成暖橙色',
+  },
+  shanghai: {
+    spring: '江风吹过来带点凉意，对岸的灯一盏接一盏亮了',
+    summer: '夏夜的江面晃着粉紫色的灯影，汽笛声慢悠悠的',
+    autumn: '梧桐叶落了满街，傍晚江上的晚霞像橘子汽水',
+    winter: '江边的风有点冻耳朵，亮灯的塔在夜空里特别清楚',
+  },
+  suichang: {
+    spring: '山谷的晨雾还没散，竹林里全是新笋和泥土味',
+    summer: '蓄满水的梯田像一块块亮镜子，把天光接住了',
+    autumn: '一层层稻田黄透了，山腰小村飘着做长粽的香气',
+    winter: '清晨梯田结了一层薄霜，山里安静得只听见竹叶响',
+  },
+  xianghu: {
+    spring: '湖面像没擦干的玻璃，远山淡淡地洇在水里',
+    summer: '木栈道边的芦苇绿得发亮，小木舟轻轻晃着水波',
+    autumn: '芦苇荡全变成金黄色了，夕阳把湖水染得暖融融',
+    winter: '起雾的早晨，湖面像没擦干的玻璃',
+  },
+  beijing: {
+    spring: '灰瓦屋檐上掠过鸽哨声，胡同口的槐花刚开',
+    summer: '老槐树把青石板遮出大片凉阴，蝉声一声接一声',
+    autumn: '金黄的银杏叶铺在灰瓦上，风里有糖炒栗子香',
+    winter: '细雪静静落在青砖灰瓦上，枝头还挂着几个冻红柿',
+  },
+  xian: {
+    spring: '古老的城砖缝里冒出小草，春风顺着城墙跑得很远',
+    summer: '太阳落下去以后，青砖还留着白天的余温',
+    autumn: '天色刚暗成群青蓝，城墙上的一排红灯笼全亮了',
+    winter: '城墙上的红灯笼在冷风里轻轻晃，暖光映着旧砖',
+  },
+  guilin: {
+    spring: '细雨像烟一样拢着青峰，竹筏划开绿绸子似的水',
+    summer: '江水清得能数见水底鹅卵石，把脚伸进去凉丝丝的',
+    autumn: '秋天的江面平得像块碧玉，一层层山影倒映在水里',
+    winter: '薄雾贴着江面慢慢走，远处的青山像淡墨画出来的',
+  },
+  dali: {
+    spring: '苍山腰上系着一条白云带，洱海蓝得晃眼睛',
+    summer: '午后的风穿过水边大树，湖面上碎银似地闪着光',
+    autumn: '天高得没有一丝杂色，晒在院里的蓝白染布随风鼓起来',
+    winter: '冬天的阳光还是暖的，水鸟贴着蓝盈盈的湖面飞',
+  },
+  chengdu: {
+    spring: '竹叶间漏下碎阳光，盖碗茶的盖子轻轻磕出清脆响声',
+    summer: '高高的翠竹挡住了暑气，竹椅坐上去凉快又踏实',
+    autumn: '细雨打在竹叶上沙沙响，铜茶壶嘴冒着一缕白热气',
+    winter: '捧着热乎乎的盖碗茶窝在竹椅里，半天都不想起来',
+  },
+  dunhuang: {
+    spring: '风吹过沙脊留下一道道细波纹，沙粒簌簌地轻响',
+    summer: '傍晚的沙山还带着日头的暖意，月牙泉绿得像块宝石',
+    autumn: '夕阳把连绵的沙丘染成金橙色，风里有远远的驼铃声',
+    winter: '清冷的夕光落在金色沙脊上，一弯泉水安安静静映着天',
+  },
+}
+
+// Interactive activities unlocked in the little home once each souvenir has been brought back.
+export const SOUVENIR_DO = {
+  hangzhou: '泡龙井茶',
+  suzhou: '摇丝绸团扇',
+  huangshan: '打理迎客松盆景',
+  xiamen: '听钢琴音乐盒',
+  xuexiang: '点亮雪屋小摆件',
+  shanghai: '摇东方明珠水晶球',
+  suichang: '尝遂昌长粽',
+  xianghu: '尝萧山萝卜干',
+  beijing: '看兔儿爷',
+  xian: '看小陶马',
+  guilin: '摸漓江鹅卵石',
+  dali: '看扎染挂布',
+  chengdu: '抱熊猫玩偶',
+  dunhuang: '摇驼铃',
+}
+
+export function cleanRecipient(raw) {
+  const s = String(raw ?? '').trim().replace(/^寄?给[:：\s]*/, '').trim().slice(0, 20)
+  return /^(家里|家里的你|小家|自己)$/.test(s) ? '' : s
+}
+
+export function seasonOf(unixSeconds) {
+  return SEASONS[new Date(unixSeconds * 1000).getMonth()] ?? 'autumn'
+}
+
+export function scenicNote(placeId, season, placeObj = {}) {
+  return placeObj?.notes?.[season] ?? SCENIC_NOTES[placeId]?.[season] ?? ''
+}
 
 export class Home {
   /**
@@ -144,8 +263,13 @@ export class Home {
         const now = this.now()
         const length = this.tripMinutes > 0 ? this.tripMinutes * 60
           : (HOURS[0] + this.random() * (HOURS[1] - HOURS[0])) * 3600
-        d.trips.push({ place, left: now, back: now + length, postcard_at: now + length * 0.5,
-          message: String(msg.message ?? ''), postcard: false, home: false, photo: '', souvenir: '' })
+        const to = cleanRecipient(msg.to)
+        const season = seasonOf(now)
+        d.trips.push({
+          place, left: now, back: now + length, postcard_at: now + length * 0.5,
+          message: String(msg.message ?? ''), ...(to ? { to } : {}), season,
+          postcard: false, home: false, photo: '', souvenir: '',
+        })
         if (d.magazine === place) d.magazine = ''
         d.inside = false
         d.chosen = null
@@ -163,7 +287,11 @@ export class Home {
         const a = this.away()
         if (!a) return 'not_away'
         if (a.postcard) return 'postcard_sent'
-        a.message = String(msg.text ?? '')
+        if (msg.text !== undefined) a.message = String(msg.text ?? '')
+        if (msg.to !== undefined) {
+          const to = cleanRecipient(msg.to)
+          if (to) a.to = to; else delete a.to
+        }
         break
       }
       case 'note': {
@@ -206,18 +334,22 @@ export class Home {
     const now = this.now()
     const date = new Date(now * 1000)
     const inside = this.isInside()
+    const season = facts.season ?? SEASONS[date.getMonth()]
+    const cards = this.#withPostcards()
+    const wallCards = cards.filter((t) => !t.to)
     const r = {
       inside, leaving: false,
       hour: facts.hour ?? Math.round((date.getHours() + date.getMinutes() / 60) * 100) / 100,
-      season: facts.season ?? SEASONS[date.getMonth()],
+      season,
       weather: facts.weather ?? null,
       at: inside ? String(facts.at ?? '') : '',
       places: Object.entries(this.places).filter(([id]) => this.canGo(id)).map(([id, p]) => ({ id, name: p.name ?? id })),
       trips: d.trips.filter((t) => t.home).length,
-      postcards: this.#withPostcards().length,
+      postcards: cards.length,
+      wall_postcards: wallCards.length,
       souvenirs: this.#souvenirs().map((p) => this.places[p]?.souvenir ?? p),
-      wall: this.#wall(), shelf: this.#shelf(),
-      away: null, magazine: null, doing: null, activities: d.activities ?? [],
+      wall: this.#wall(), sent_to: this.#sentTo(), shelf: this.#shelf(),
+      away: null, magazine: null, doing: null, activities: this.#allActivities(),
       outfit: OUTFITS[d.outfit] ?? OUTFITS.maid, outfits: Object.values(OUTFITS),
     }
     if (inside && d.chosen && now < d.chosen.until) {
@@ -225,8 +357,12 @@ export class Home {
       if (typeof facts.arrived === 'boolean') r.doing.arrived = facts.arrived
     }
     if (a) {
-      r.away = { place: a.place, name: this.places[a.place]?.name ?? a.place, left: a.left, back: a.back,
-        postcard: a.postcard, wrote: Boolean(a.message) }
+      const tripSeason = a.season || seasonOf(a.left)
+      r.away = {
+        place: a.place, name: this.places[a.place]?.name ?? a.place, left: a.left, back: a.back,
+        postcard: a.postcard, wrote: Boolean(a.message), to: a.to || '',
+        scenic: scenicNote(a.place, tripSeason, this.places[a.place]),
+      }
     }
     let changed = false
     if (d.magazine) {
@@ -243,7 +379,7 @@ export class Home {
 
   /** The window tells what can be done in the little home and how many postcards the wall holds. */
   world(msg) {
-    if (Array.isArray(msg.activities)) this.data.activities = msg.activities.map(String).slice(0, 50)
+    if (Array.isArray(msg.activities)) this.data.activities = msg.activities.map(String).slice(0, 80)
     if (Number.isInteger(msg.wall_slots)) this.data.wall_slots = msg.wall_slots
     this.changed()
   }
@@ -264,20 +400,22 @@ export class Home {
   }
 
   /**
-   * A window hands over the record it kept itself before the plugin kept it (once per plugin record). Its
-   * trips that are over are put in with the ones kept here, by date (the same trip twice is taken once); if
-   * things already happened here (she came in, a magazine was put down), those stay as they are and only the
-   * trips, the unseen count and the notes she read come over. Only the known fields are taken.
+   * A window hands over the record it kept itself before the plugin kept it (once per plugin record).
    */
   seed(data) {
     if (!this.fresh || !data || typeof data !== 'object' || !Array.isArray(data.trips) || !data.trips.length) return false
     const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0)
     const have = new Set(this.data.trips.map((t) => `${t.place}@${t.left}`))
-    const old = data.trips.filter((t) => t && typeof t.place === 'string' && t.home).map((t) => ({
-      place: t.place, left: num(t.left), back: num(t.back), postcard_at: num(t.postcard_at), message: String(t.message ?? ''),
-      postcard: true, home: true, photo: String(t.photo ?? ''), souvenir: String(t.souvenir ?? ''),
-      ...(t.early ? { early: t.early === 'souvenir' ? 'souvenir' : 'photo' } : {}),
-    })).filter((t) => !have.has(`${t.place}@${t.left}`))
+    const old = data.trips.filter((t) => t && typeof t.place === 'string' && t.home).map((t) => {
+      const to = cleanRecipient(t.to)
+      return {
+        place: t.place, left: num(t.left), back: num(t.back), postcard_at: num(t.postcard_at),
+        message: String(t.message ?? ''), ...(to ? { to } : {}),
+        season: typeof t.season === 'string' && t.season ? t.season : seasonOf(num(t.left)),
+        postcard: true, home: true, photo: String(t.photo ?? ''), souvenir: String(t.souvenir ?? ''),
+        ...(t.early ? { early: t.early === 'souvenir' ? 'souvenir' : 'photo' } : {}),
+      }
+    }).filter((t) => !have.has(`${t.place}@${t.left}`))
     // a trip under way here stays the last one (the one she is on)
     const away = this.away()
     const done = this.data.trips.filter((t) => t !== away).concat(old).sort((a, b) => a.left - b.left)
@@ -318,10 +456,19 @@ export class Home {
     this.data.unseen += 1
   }
 
+  #allActivities() {
+    const out = [...(this.data.activities ?? [])]
+    for (const p of this.#souvenirs()) {
+      const act = this.places[p]?.souvenir_do ?? SOUVENIR_DO[p]
+      if (act && !out.includes(act)) out.push(act)
+    }
+    return out
+  }
+
   #activity(text) {
     text = text.trim()
     if (!text) return ''
-    const list = this.data.activities ?? []
+    const list = this.#allActivities()
     return list.find((n) => n === text) ?? list.find((n) => n.includes(text) || text.includes(n)) ?? ''
   }
 
@@ -336,18 +483,25 @@ export class Home {
   /** "11月12日·杭州": which trip a postcard or souvenir came from. */
   #label(t, when) { return `${dayText(t[when])}·${this.places[t.place]?.short ?? t.place}` }
 
-  /** The postcards on the wall (newest first, as many as it has slots), labelled by trip. */
+  /** The postcards kept on her own wall (unaddressed / for home, newest first, up to wall_slots). */
   #wall() {
-    const cards = this.#withPostcards().reverse()
+    const cards = this.#withPostcards().filter((t) => !t.to).reverse()
     const slots = Number.isInteger(this.data.wall_slots) ? this.data.wall_slots : cards.length
     return cards.slice(0, slots).map((t) => this.#label(t, 'postcard_at'))
   }
 
-  /** The souvenirs on the shelf, each with the trip that first brought it home. */
+  /** Postcards addressed to specific people (妈妈, 姐姐...), kept in the album without taking wall slots. */
+  #sentTo() {
+    return this.#withPostcards().filter((t) => t.to).reverse()
+      .map((t) => `${t.to}（${this.#label(t, 'postcard_at')}）`)
+  }
+
+  /** The souvenirs brought home (Dali's tie-dye cloth hangs on the wall; others stand on the shelf). */
   #shelf() {
     return this.#souvenirs().map((p) => {
       const t = this.data.trips.find((x) => x.home && x.place === p && x.souvenir)
-      return `${this.places[p]?.souvenir ?? p}（${this.#label(t, 'back')}）`
+      const where = p === 'dali' ? '挂在墙上·' : ''
+      return `${this.places[p]?.souvenir ?? p}（${where}${this.#label(t, 'back')}）`
     })
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "dsh-living-dock",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "The little home of 《旅行的大肥鱼》 for your DSH companion: a page in DSH (or a window) where she lives, travels and sends postcards, with optional tools she decides to use. The plugin keeps the home's record; chat text never leaves the computer.",
   "private": true,
   "type": "module",

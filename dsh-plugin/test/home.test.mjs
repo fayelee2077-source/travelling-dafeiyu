@@ -216,3 +216,47 @@ test('tools go through the home: no window needed except for the photo', async (
   assert.match(tools.little_home_travel.description ?? createTools(() => {}, undefined, PLACES).find((t) => t.name === 'little_home_travel').description, /杭州 或 雪乡/)
   done()
 })
+
+test('postcards sent to specific people stay out of her wall slots, scenic notes match season, and souvenirs unlock actions', () => {
+  const places = {
+    ...PLACES,
+    xianghu: { name: '杭州·湘湖', short: '湘湖', souvenir: '萧山萝卜干', photos: ['xh1.png'] },
+    dali: { name: '大理·洱海', short: '大理', souvenir: '蓝白扎染布', photos: ['dl1.png'] },
+  }
+  const { clock, home, done } = setup({ places })
+  home.world({ activities: ['荡秋千'], wall_slots: 2 })
+  // before any trip, souvenir actions are not in activities
+  assert.deepEqual(home.report().activities, ['荡秋千'])
+
+  // 1) trip to Xianghu in winter, addressed to 妈妈
+  clock.t = Date.UTC(2026, 11, 5, 6, 0) / 1000            // December = winter
+  assert.equal(home.handle({ op: 'travel', place: 'xianghu', message: '风好清亮', to: '给妈妈' }), '')
+  const away1 = home.report().away
+  assert.equal(away1.to, '妈妈')
+  assert.match(away1.scenic, /湖面像没擦干的玻璃/)
+  // can update recipient before postcard arrives
+  assert.equal(home.handle({ op: 'postcard', text: '给姐姐带句话', to: '姐姐' }), '')
+  assert.equal(home.report().away.to, '姐姐')
+  clock.t += 9 * 3600
+  home.tick()
+  // addressed to 姐姐 -> not on her own wall, listed in sent_to, radish action unlocked
+  let r = home.report()
+  assert.deepEqual(r.wall, [])
+  assert.equal(r.wall_postcards, 0)
+  assert.equal(r.postcards, 1)
+  assert.deepEqual(r.sent_to, ['姐姐（12月5日·湘湖）'])
+  assert.ok(r.activities.includes('尝萧山萝卜干'))
+  assert.equal(home.handle({ op: 'do', activity: '萝卜干', minutes: 10 }), '')
+  assert.equal(home.report().doing.name, '尝萧山萝卜干')
+
+  // 2) trip to Dali, kept for home -> goes on wall, tie-dye cloth hangs on wall
+  assert.equal(home.handle({ op: 'travel', place: 'dali', to: '家里的你' }), '')
+  clock.t += 9 * 3600
+  home.tick()
+  r = home.report()
+  assert.deepEqual(r.wall, ['12月6日·大理'])
+  assert.equal(r.wall_postcards, 1)
+  assert.ok(r.shelf.some((s) => s.includes('蓝白扎染布（挂在墙上·')))
+  assert.ok(r.activities.includes('看扎染挂布'))
+  done()
+})

@@ -1,20 +1,15 @@
 class_name Soundscape
 extends Node
-## Ambient sound that follows the world: rain, wind (snow, overcast), crickets on summer and
-## early-autumn nights, birds by day (more at dawn and when birds are in the yard), a splash when
-## a fish jumps. Outdoor sound is muffled while the companion is inside. Sounds come from
-## tools/p1_sounds.py (synthesised, original). Pauses with the world when it freezes.
-## Rain comes and goes (11-16: one rain sound for hours is tiring): three kinds of rain, a new mix every
-## minute or two with now and then a near-quiet lull. (Single drips from the eaves were tried and taken out,
-## 11-16: they did not sound nice.)
+## Ambient sound that follows the world, plus indoor keepsake sound effects (music box, camel bell, tea).
+## Sounds come from tools/p1_sounds.py (synthesised, original). Pauses with the world when it freezes.
 
 const DIR := "res://assets/sounds/"
 const BUS := "Outdoor"
-# loop name -> loudness at full (dB)
 const LOOPS := {"rain": -10.0, "rain_light": -9.0, "rain_roof": -10.0, "wind": -9.0, "crickets": -15.0}
 const RAINS := ["rain", "rain_light", "rain_roof"]
 const SPELL := [45.0, 120.0]         # seconds one rain mix lasts
 const LULL := 0.25                   # chance a spell is a near-quiet lull
+const SFX_NAMES := ["music_box", "camel_bell", "tea_pour", "chime_soft"]
 
 var world: World
 var companion: Companion
@@ -24,6 +19,8 @@ var _loops: Dictionary = {}           # name -> {player, level}
 var _birds: Array[AudioStream] = []
 var _splash: AudioStream
 var _shots: Array[AudioStreamPlayer] = []
+var _sfx: Dictionary = {}             # name -> AudioStream
+var _indoor_shots: Array[AudioStreamPlayer] = []
 var _bird_t := 4.0
 var _rain_mix := {}                  # rain loop -> share of the rain now
 var _spell_t := 0.0
@@ -69,7 +66,40 @@ func _ready() -> void:
 		p.bus = BUS
 		add_child(p)
 		_shots.append(p)
+	for n in SFX_NAMES:
+		if ResourceLoader.exists(DIR + n + ".ogg"):
+			_sfx[n] = load(DIR + n + ".ogg")
+	for i in 2:
+		var p := AudioStreamPlayer.new()
+		p.bus = "Master"
+		add_child(p)
+		_indoor_shots.append(p)
 	ambient.fish_jumped.connect(func(): _shot(_splash, -13.0, _rng.randf_range(0.9, 1.1)))
+
+
+## Plays an indoor keepsake sound clearly on the Master bus (unmuffled by indoor roof filtering).
+func play_sfx(kind: String, db := -8.0, pitch := 1.0) -> void:
+	if Settings.sound != "on" or not _sfx.has(kind):
+		return
+	var stream: AudioStream = _sfx[kind]
+	for p in _indoor_shots:
+		if p.playing and p.stream == stream:
+			p.stop()
+			p.volume_db = db
+			p.pitch_scale = pitch
+			p.play()
+			return
+	for p in _indoor_shots:
+		if not p.playing:
+			p.stream = stream
+			p.volume_db = db
+			p.pitch_scale = pitch
+			p.play()
+			return
+	_indoor_shots[0].stream = stream
+	_indoor_shots[0].volume_db = db
+	_indoor_shots[0].pitch_scale = pitch
+	_indoor_shots[0].play()
 
 
 func _process(delta: float) -> void:
@@ -91,7 +121,6 @@ func _process(delta: float) -> void:
 	for n in _loops:
 		var l: Dictionary = _loops[n]
 		var target: float = want[n] if on else 0.0
-		# rain changes slowly, so a new spell fades in over ten seconds or so
 		l["level"] = move_toward(l["level"], target, delta * (0.08 if n in RAINS else 0.5))
 		var p: AudioStreamPlayer = l["player"]
 		p.volume_db = LOOPS[n] + linear_to_db(maxf(l["level"], 0.0001))
@@ -111,7 +140,6 @@ func _process(delta: float) -> void:
 			_shot(_birds[_rng.randi() % _birds.size()], _rng.randf_range(-16.0, -10.0), _rng.randf_range(0.9, 1.15))
 
 
-## The next stretch of rain: mostly one kind with a little of the others, or now and then a near-quiet lull.
 func _new_spell() -> void:
 	_spell_t = _rng.randf_range(SPELL[0], SPELL[1])
 	var lull := _rng.randf() < LULL

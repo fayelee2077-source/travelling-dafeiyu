@@ -1,12 +1,15 @@
 class_name PostcardView
 extends Control
 ## A postcard drawn by the program around a picture: front = the picture, the place, a stamp of our own
-## (not a real one) and a postmark with the date; back = her words (only if she wrote some), from where, when.
-## Click to turn it over.
+## (not a real one) and a postmark with the date; back = her own words (only if she wrote some), a printed
+## seasonal scenic footer at the bottom, and who it is addressed to on the right. Click to turn it over.
+
+signal flipped
 
 var picture: Texture2D
 var place := {}                      # {name, en, short}
-var trip := {}                       # {postcard_at, message}
+var trip := {}                       # {postcard_at, message, to?}
+var scenic := ""
 var back := false
 
 const PAPER := Color(0.98, 0.96, 0.9)
@@ -18,10 +21,11 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 
 
-func show_trip(p: Dictionary, t: Dictionary, tex: Texture2D) -> void:
+func show_trip(p: Dictionary, t: Dictionary, tex: Texture2D, scenic_line := "") -> void:
 	place = p
 	trip = t
 	picture = tex
+	scenic = scenic_line
 	back = false
 	queue_redraw()
 
@@ -30,6 +34,7 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		back = not back
 		queue_redraw()
+		flipped.emit()
 		accept_event()
 
 
@@ -43,7 +48,6 @@ func _draw() -> void:
 		var inner := r.grow(-14)
 		if picture:
 			draw_texture_rect(picture, inner, false)
-		# the place, on a soft paper strip at the bottom left
 		var name: String = place.get("name", "")
 		var strip := Rect2(inner.position.x, inner.end.y - 66, 30 + 30 * name.length(), 54)
 		draw_rect(strip, Color(PAPER, 0.82))
@@ -52,34 +56,37 @@ func _draw() -> void:
 		_stamp(stamp, font)
 		_postmark(stamp.position + Vector2(-22, 70), font)
 		return
-	# back: her words on the left, from / to and the stamp on the right
+	# back: her words on the left, printed seasonal scenic note below, recipient / sender / stamp on the right
 	var mid := size.x * 0.58
 	draw_line(Vector2(mid, 30), Vector2(mid, size.y - 30), Color(INK, 0.35), 2.0)
-	var words: String = trip.get("message", "")
-	# Chinese has no spaces: break between characters too (adaptive), not only at spaces; long words get smaller
+	var words: String = str(trip.get("message", ""))
 	var brk := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
+	var max_h := size.y - (168.0 if scenic != "" else 130.0)
 	if words != "":
 		var fs := 24
-		while fs > 14 and font.get_multiline_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, mid - 64, fs, -1, brk).y \
-				> size.y - 130:
+		while fs > 14 and font.get_multiline_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, mid - 64, fs, -1, brk).y > max_h:
 			fs -= 2
-		draw_multiline_string(font, Vector2(34, 46 + fs), words, HORIZONTAL_ALIGNMENT_LEFT, mid - 64, fs, -1, INK, brk)
+		draw_multiline_string(font, Vector2(34, 42 + fs), words, HORIZONTAL_ALIGNMENT_LEFT, mid - 64, fs, -1, INK, brk)
 	else:
-		draw_multiline_string(font, Vector2(34, 70), "（她没有写字，只寄来了风景）", HORIZONTAL_ALIGNMENT_LEFT, mid - 64, 16, -1,
+		draw_multiline_string(font, Vector2(34, 68), "（她没有写字，只寄来了风景）", HORIZONTAL_ALIGNMENT_LEFT, mid - 64, 16, -1,
 			Color(INK, 0.55), brk)
-	draw_string(font, Vector2(34, size.y - 34), Travel.day_text(float(trip.get("postcard_at", 0))) + " · " + str(place.get("short", "")),
-		HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(INK, 0.8))
+	if scenic != "":
+		draw_line(Vector2(34, size.y - 98), Vector2(mid - 26, size.y - 98), Color(INK, 0.18), 1.0)
+		draw_multiline_string(font, Vector2(34, size.y - 78), "风物小注：" + scenic, HORIZONTAL_ALIGNMENT_LEFT,
+			mid - 52, 12, 2, Color(0.42, 0.36, 0.32, 0.75), brk)
+	draw_string(font, Vector2(34, size.y - 26), Travel.day_text(float(trip.get("postcard_at", 0))) + " · " + str(place.get("short", "")),
+		HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color(INK, 0.8))
 	for i in 3:
 		var y := 200.0 + i * 52.0
 		draw_line(Vector2(mid + 24, y), Vector2(size.x - 30, y), Color(INK, 0.3), 1.5)
-	draw_string(font, Vector2(mid + 28, 192), "寄给：家里的你", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, INK)
+	var to_who := str(trip.get("to", "")).strip_edges()
+	draw_string(font, Vector2(mid + 28, 192), "寄给：" + (to_who if to_who != "" else "家里的你"), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, INK)
 	draw_string(font, Vector2(mid + 28, 244), "寄自：" + str(place.get("short", "")), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, INK)
 	draw_string(font, Vector2(mid + 28, 296), "大肥鱼", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, INK)
 	_stamp(stamp, font)
 	_postmark(stamp.position + Vector2(-22, 70), font)
 
 
-## Our own stamp: a piece of the picture inside a perforated edge, "大肥鱼邮政" and "一份想念" (not a real stamp).
 func _stamp(s: Rect2, font: Font) -> void:
 	draw_rect(s, Color.WHITE)
 	var step := 8.0

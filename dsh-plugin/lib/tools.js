@@ -3,11 +3,12 @@
 // QQ, no network, no other files, and the plugin never calls them by itself. Results are plain facts in
 // Chinese, worded here from the home's report. Coffee-table notes (supplement 4, amendments 1 and 2) are only
 // worded here, as what is written on each note and who left it.
+import { cleanRecipient } from './home.js'
 
 const WEATHER = { clear: '晴', cloudy: '多云', rain: '下雨', snow: '下雪' }
 const SEASON = { spring: '春天', summer: '夏天', autumn: '秋天', winter: '冬天' }
 // other names she may use for a place (the places' own names and short names always work)
-const ALIASES = { 西湖: 'hangzhou', 杭州西湖: 'hangzhou', 鼓浪屿: 'xiamen', 厦门鼓浪屿: 'xiamen', 中国雪乡: 'xuexiang', 东北雪乡: 'xuexiang', 雪乡: 'xuexiang', 外滩: 'shanghai', 上海外滩: 'shanghai', 东方明珠: 'shanghai', 东方明珠塔: 'shanghai' }
+const ALIASES = { 西湖: 'hangzhou', 杭州西湖: 'hangzhou', 鼓浪屿: 'xiamen', 厦门鼓浪屿: 'xiamen', 中国雪乡: 'xuexiang', 东北雪乡: 'xuexiang', 雪乡: 'xuexiang', 外滩: 'shanghai', 上海外滩: 'shanghai', 东方明珠: 'shanghai', 东方明珠塔: 'shanghai', 南尖岩: 'suichang', 丽水: 'suichang', 丽水遂昌: 'suichang', 萧山: 'xianghu', 萧山湘湖: 'xianghu', 杭州湘湖: 'xianghu', 胡同: 'beijing', 北京胡同: 'beijing', 四合院: 'beijing', 城墙: 'xian', 西安城墙: 'xian', 古城墙: 'xian', 漓江: 'guilin', 桂林漓江: 'guilin', 阳朔: 'guilin', 洱海: 'dali', 大理洱海: 'dali', 苍山: 'dali', 苍山洱海: 'dali', 宽窄巷子: 'chengdu', 竹林茶铺: 'chengdu', 成都茶铺: 'chengdu', 鸣沙山: 'dunhuang', 月牙泉: 'dunhuang', 敦煌鸣沙山: 'dunhuang' }
 const CLOSED = '《旅行的大肥鱼》的小家现在没打开，看不到也去不了小家。'
 
 const TEXT_OUT = {
@@ -28,9 +29,11 @@ export function describe(w, full = true) {
   const sky = w.weather ? `，${WEATHER[w.weather] ?? w.weather}` : ''
   const lines = [`小家这会儿是 ${clock(w.hour)}，${SEASON[w.season] ?? w.season}${sky}。`]
   if (w.away) {
-    const card = w.away.postcard ? '明信片已经寄到家了。'
-      : w.away.wrote ? '明信片还在路上，背面写了你的话。' : '明信片还在路上，背面还没写字。'
-    lines.push(`你正在${w.away.name}旅行（${day(w.away.left)}出发，大约 ${when(w.away.back)} 回家）。${card}`)
+    const toText = w.away.to ? `寄给${w.away.to}的` : ''
+    const card = w.away.postcard ? `${toText}明信片已经寄到了。`
+      : w.away.wrote ? `${toText}明信片还在路上，背面写了你的话。` : `${toText}明信片还在路上，背面还没写字。`
+    const scenic = w.away.scenic ? `路上的风物小注：「${w.away.scenic}」（会印在明信片背面角落，给你参考）。` : ''
+    lines.push(`你正在${w.away.name}旅行（${day(w.away.left)}出发，大约 ${when(w.away.back)} 回家）。${card}${scenic}`)
   } else if (w.leaving) {
     lines.push('你正往院门走，要出门了。')
   } else if (w.inside && w.doing) {
@@ -43,8 +46,16 @@ export function describe(w, full = true) {
     lines.push('你现在不在小家里，房子空着，门关着，灯也没开。')
   }
   if (w.trips || w.postcards) {
-    const shown = w.wall?.length ? `：${w.wall.join('、')}${w.postcards > w.wall.length ? `（墙上挂满了，只挂得下最新的 ${w.wall.length} 张）` : ''}` : ''
-    lines.push(`已经旅行回来 ${w.trips} 次，明信片墙上有 ${w.postcards} 张明信片${shown}。`)
+    const wallCount = w.wall_postcards ?? w.postcards
+    if (wallCount || !w.sent_to?.length) {
+      const shown = w.wall?.length ? `：${w.wall.join('、')}${wallCount > w.wall.length ? `（墙上挂满了，只挂得下最新的 ${w.wall.length} 张）` : ''}` : ''
+      lines.push(`已经旅行回来 ${w.trips} 次，明信片墙上有 ${wallCount} 张明信片${shown}。`)
+    } else {
+      lines.push(`已经旅行回来 ${w.trips} 次，明信片墙上还没有留给小家自己的明信片。`)
+    }
+    if (w.sent_to?.length) {
+      lines.push(`另外还专门寄出过明信片给：${w.sent_to.join('、')}（不占你的墙面，都在旅行相册里）。`)
+    }
   }
   const shelf = w.shelf?.length ? w.shelf : w.souvenirs
   if (shelf?.length) lines.push(`纪念品柜里有：${shelf.join('、')}。`)
@@ -75,13 +86,13 @@ const WHY = {
   not_inside: () => '你本来就不在小家里。',
   unknown_place: (w) => `现在去不了那里。${w.places?.length ? `能去的地方：${w.places.map((p) => p.name).join('、')}。` : ''}`,
   not_away: () => '你现在没有在旅行。',
-  postcard_sent: () => '这次的明信片已经寄到家了，改不了了。',
+  postcard_sent: () => '这次的明信片已经寄到了，改不了了。',
   outside: () => '你现在不在小家里，先进去才能在里面做事。',
   unknown_activity: (w) => `小家里没有这件事可做。${w.activities?.length ? `能做的事：${w.activities.join('、')}。` : ''}`,
   minimized: () => '小家的窗口现在缩到任务栏里了，拍不到画面。',
   empty_note: () => '纸条上要写点什么才行。',
   note_failed: () => '纸条没放上去（小家的纸条文件夹写不进去）。',
-  no_postcard_yet: (w) => `你正在${w.away?.name ?? '外面'}旅行，小家里没人；你寄的明信片还没到家，到了以后可以在这里看。`,
+  no_postcard_yet: (w) => `你正在${w.away?.name ?? '外面'}旅行，小家里没人；那边的风景画还没准备好。`,
   closed: () => '小家的画面现在没打开（《旅行的大肥鱼》窗口和 DSH 里的小家页面都没开），拍不到照片。',
   unknown_outfit: (w) => `衣柜里没有这套衣服。${w.outfits?.length ? `有：${w.outfits.join('、')}。` : ''}`,
   already_wearing: (w) => `你身上穿的就是${w.outfit ?? '这套'}。`,
@@ -93,10 +104,7 @@ const OUTFIT_WORDS = [
 ]
 
 /**
- * The tool definitions (defineTool options). request(message, timeoutMs) carries out a command (lib/home.js
- * homeRequest) and resolves with {ok, why, world}, or rejects when it cannot. attach(buffer, mediaType) keeps a
- * picture for the model and resolves with the attachment reference (or undefined when the host cannot).
- * places: {id: {name, short}} she can go to (dsh-plugin/places.json).
+ * The tool definitions (defineTool options).
  */
 export function createTools(request, attach = async () => undefined, places = {}) {
   const placeNames = { ...ALIASES }
@@ -127,23 +135,26 @@ export function createTools(request, attach = async () => undefined, places = {}
     {
       name: 'little_home_photo',
       description: '给《旅行的大肥鱼》的小家窗口拍一张照片，看看那里此刻真实的样子（你在做什么、天色、家里的东西）。'
-        + '旅行途中家里没人，给你看的是你寄回家的那张明信片（寄到以后）。只看不动；每张照片会用一些图片额度。',
+        + '旅行途中家里没人，给你看的是路上的风景或你寄回家的明信片正面。只看不动；每张照片会用一些图片额度。',
       parameters: {},
       isConcurrencySafe: () => true,
       execute: () => run({ t: 'cmd', op: 'photo' }, async (w, reply) => {
         const image = reply.image ? await attach(Buffer.from(reply.image, 'base64'), reply.mime || 'image/jpeg').catch(() => undefined) : undefined
         if (!image) return { text: '照片拍好了，但这里没法把图片给你看。' }
+        if (reply.kind === 'on_road') {
+          return { text: `你正在去${w.away?.name ?? '外面'}的路上，小家里没人。这是那边的风景（明信片过一会儿寄出）。`, image }
+        }
         return reply.kind === 'postcard'
-          ? { text: `你在${w.away?.name ?? '外面'}旅行，小家里没人。这是你寄回家的明信片。`, image }
+          ? { text: `你在${w.away?.name ?? '外面'}旅行，小家里没人。这是你寄出的明信片风景。`, image }
           : { text: '这是小家窗口现在的样子。', image }
       }, { timeoutMs: 10000 }),
     },
     {
       name: 'little_home_do',
-      description: '在小家里做一件你想做的事，比如荡秋千、钓鱼、浇花、看花、看书、做饭、吃饭、睡觉、坐沙发（能做的事 little_home_look 会列出来）。'
+      description: '在小家里做一件你想做的事，比如荡秋千、钓鱼、浇花、看花、看书、做饭、吃饭、睡觉、坐沙发，或者用你旅行带回来的纪念品（比如泡龙井茶、听钢琴音乐盒、摇驼铃；现在能做的事 little_home_look 会列出来）。'
         + '小家里的你会去做，一直做到时间到；你没选的时候，那里的你只是坐坐、在门前站站。要先进入小家。',
       parameters: {
-        activity: { type: 'string', required: true, description: '做什么，例如 荡秋千' },
+        activity: { type: 'string', required: true, description: '做什么，例如 荡秋千、泡龙井茶、听钢琴音乐盒' },
         minutes: { type: 'number', description: '做多久（分钟，1 到 240，默认 20）' },
         reason: { type: 'string', description: '为什么想做（可选）' },
       },
@@ -166,18 +177,21 @@ export function createTools(request, attach = async () => undefined, places = {}
     },
     {
       name: 'little_home_travel',
-      description: '从小家出门旅行，要离开大半天（8 到 20 个小时；想早点回来可以用 little_home_come_back，但要少带一样东西）。路上会寄一张明信片回家，回来时带着照片和纪念品。'
-        + `目的地写 ${list || '能去的地方'}（现在能去哪里，little_home_look 会告诉你）。去不去、去哪都由你决定。`,
+      description: '从小家出门旅行，要离开大半天（8 到 20 个小时；想早点回来可以用 little_home_come_back，但要少带一样东西）。路上会寄一张明信片（可指定寄给妈妈、姐姐等，不填就留在小家墙上），回来时带着照片和纪念品。'
+        + `目的地写 ${list || '能去的地方'}（现在能去哪里，little_home_look 会告诉你）。去不去、去哪、寄给谁都由你决定。`,
       parameters: {
         place: { type: 'string', required: true, description: `去哪：${shorts.join(' / ') || '能去的地方'}` },
         message: { type: 'string', description: '想写在明信片背面的话（可选，你自己写；不写就只寄风景）' },
+        to: { type: 'string', description: '明信片寄给谁（可选，例如 妈妈、姐姐；不填就寄回小家挂在墙上，填了别人就不占你自己的墙面，相册里都能看）' },
       },
       execute: (args) => {
         const place = placeNames[String(args.place ?? '').trim()] ?? String(args.place ?? '').trim().toLowerCase()
         const message = words(args.message)
-        return run({ t: 'cmd', op: 'travel', place, message }, (w) => {
+        const to = cleanRecipient(args.to)
+        return run({ t: 'cmd', op: 'travel', place, message, ...(to ? { to } : {}) }, (w) => {
           const name = w.away?.name ?? w.places?.find((p) => p.id === place)?.name ?? place
-          return `你收拾好东西，出门去${name}了。${message ? '明信片背面会写上你的话。' : ''}`
+          const who = to ? `这次的明信片会寄给${to}。` : ''
+          return `你收拾好东西，出门去${name}了。${who}${message ? '明信片背面会写上你的话。' : ''}`
         })
       },
     },
@@ -216,12 +230,20 @@ export function createTools(request, attach = async () => undefined, places = {}
     },
     {
       name: 'little_home_postcard',
-      description: '旅行途中，给这次还没寄到家的明信片写（或改写）背面的话。',
-      parameters: { text: { type: 'string', required: true, description: '写在明信片背面的话' } },
+      description: '旅行途中，给这次还没寄到的明信片写（或改写）背面的话，也可以指定或修改寄给谁（例如 妈妈、姐姐）。',
+      parameters: {
+        text: { type: 'string', required: true, description: '写在明信片背面的话' },
+        to: { type: 'string', description: '明信片寄给谁（可选，例如 妈妈、姐姐；不填保持原样）' },
+      },
       execute: (args) => {
         const text = words(args.text)
         if (!text) return { text: '明信片背面要写点什么才行。' }
-        return run({ t: 'cmd', op: 'postcard', text }, () => '写好了，这些话会出现在寄回家的明信片背面。')
+        const hasTo = args.to !== undefined && String(args.to).trim() !== ''
+        const to = hasTo ? cleanRecipient(args.to) : undefined
+        return run({ t: 'cmd', op: 'postcard', text, ...(hasTo ? { to } : {}) }, (w) => {
+          const who = w.away?.to ? `寄给${w.away.to}的` : '寄回家的'
+          return `写好了，这些话会出现在${who}明信片背面。`
+        })
       },
     },
   ].map((tool) => ({ ...tool, output: TEXT_OUT }))

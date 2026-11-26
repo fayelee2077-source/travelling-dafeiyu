@@ -173,6 +173,85 @@ def splash():
     return normalize(x, 0.5)
 
 
+def music_box():
+    """Gulangyu piano music box: a gentle 6.2 s pentatonic sea-breeze lullaby on metal tines."""
+    n = int(6.4 * SR)
+    x = [0.0] * n
+    # (time_s, midi_note, velocity)
+    notes = [
+        (0.08, 76, 0.9), (0.46, 79, 0.8), (0.84, 84, 1.0), (1.22, 83, 0.85),
+        (1.60, 79, 0.8), (1.98, 76, 0.75), (2.36, 74, 0.85), (2.74, 79, 0.8),
+        (3.20, 81, 0.9), (3.58, 84, 0.95), (3.96, 83, 0.85), (4.34, 79, 0.75),
+        (4.72, 72, 0.8), (5.02, 76, 0.85), (5.32, 79, 0.9), (5.64, 84, 1.0),
+    ]
+    for t0, midi, vel in notes:
+        f = 440.0 * (2.0 ** ((midi - 69) / 12.0))
+        at = int(t0 * SR)
+        dur = int(0.95 * SR)
+        for i in range(dur):
+            if at + i >= n:
+                break
+            u = i / SR
+            attack = min(1.0, i / (0.003 * SR))
+            tone = (math.sin(2 * math.pi * f * u) * math.exp(-u * 3.2)
+                    + 0.28 * math.sin(2 * math.pi * f * 2.76 * u) * math.exp(-u * 9.0)
+                    + 0.10 * math.sin(2 * math.pi * f * 5.40 * u) * math.exp(-u * 18.0))
+            x[at + i] += vel * attack * tone
+    return normalize(x, 0.48)
+
+
+def camel_bell():
+    """Dunhuang bronze camel bell with a wisp of desert sand breeze (3.1 s)."""
+    r = random.Random(42)
+    n = int(3.1 * SR)
+    breeze = highpass(lowpass([r.uniform(-1, 1) for _ in range(n)], 2400), 500)
+    x = [b * 0.10 * math.sin(math.pi * min(1.0, i / n)) ** 1.4 for i, b in enumerate(breeze)]
+    for t0, amp in ((0.12, 1.0), (1.08, 0.78)):
+        at = int(t0 * SR)
+        dur = int(1.85 * SR)
+        for i in range(dur):
+            if at + i >= n:
+                break
+            u = i / SR
+            attack = min(1.0, i / (0.004 * SR))
+            bell = (math.sin(2 * math.pi * 528.0 * u) * math.exp(-u * 2.4)
+                    + 0.52 * math.sin(2 * math.pi * 784.0 * u) * math.exp(-u * 3.4)
+                    + 0.30 * math.sin(2 * math.pi * 1118.0 * u) * math.exp(-u * 5.0)
+                    + 0.16 * math.sin(2 * math.pi * 1640.0 * u) * math.exp(-u * 8.5))
+            x[at + i] += amp * attack * bell
+    return normalize(x, 0.50)
+
+
+def tea_pour():
+    """West Lake Longjing tea: a porcelain cup clink and warm water pouring in (1.8 s)."""
+    r = random.Random(18)
+    n = int(1.85 * SR)
+    x = [0.0] * n
+    burst(x, int(0.05 * SR), 2420.0, 0.035, 0.35)
+    burst(x, int(0.05 * SR), 3890.0, 0.020, 0.20)
+    stream = highpass(lowpass([r.uniform(-1, 1) for _ in range(n)], 2600), 650)
+    for i in range(int(0.22 * SR), int(1.55 * SR)):
+        u = (i - 0.22 * SR) / (1.33 * SR)
+        env = math.sin(math.pi * u) ** 1.2
+        x[i] += stream[i] * env * 0.32
+        if r.random() < 0.012:
+            burst(x, i, r.uniform(750, 1450) + 350 * u, 0.012, 0.14 * env)
+    return normalize(x, 0.45)
+
+
+def chime_soft():
+    """Gentle warm wooden/ceramic chime when touching a keepsake (0.65 s)."""
+    n = int(0.65 * SR)
+    x = [0.0] * n
+    for t0, f, a in ((0.02, 784.0, 0.8), (0.11, 1174.6, 0.65)):
+        at = int(t0 * SR)
+        for i in range(n - at):
+            u = i / SR
+            env = min(1.0, i / (0.003 * SR)) * math.exp(-u * 7.5)
+            x[at + i] += a * env * (math.sin(2 * math.pi * f * u) + 0.22 * math.sin(2 * math.pi * f * 2.0 * u))
+    return normalize(x, 0.40)
+
+
 save("rain", rain())
 save("rain_light", rain_light())
 save("rain_roof", rain_roof())
@@ -181,4 +260,8 @@ save("crickets", crickets())
 for i in range(4):
     save("bird_%d" % i, chirp(i))
 save("splash", splash())
+save("music_box", music_box())
+save("camel_bell", camel_bell())
+save("tea_pour", tea_pour())
+save("chime_soft", chime_soft())
 print("ok", OUT)
